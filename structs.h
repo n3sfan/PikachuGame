@@ -4,12 +4,30 @@
 #include <string>
 
 #include "linked_list.h"
+#include <iterator>
 
 using namespace std;
 
+// template <typename T>
+// struct Cell {
+//     T x, y;  
+//     Cell(T x = 0, T y = 0): x(x), y(y) {}
+
+//     template <typename U>
+//     friend bool operator==(const Cell<U> &a, const Cell<U> &o);
+// };
+
+// struct CellInt: Cell<int> {
+// };
+
+// struct CellNode: Cell<Node*> {
+// };
+
 struct Cell {
-    int x, y;  
-    Cell(int x, int y): x(x), y(y) {}
+    int x, y;
+    Cell(int x = 0, int y = 0): x(x), y(y) {}
+
+    friend bool operator==(const Cell &a, const Cell &o);
 };
 
 struct Board {

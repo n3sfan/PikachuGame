@@ -43,6 +43,7 @@ const int kKeyDown = 80;
 const int kKeyRight = 77;
 const int kKeyLeft = 75;
 const int kKeyEnter = '\n';
+const int kKeyBackspace = '\b';
 
 /* Key */
 int GetSpecialChar();

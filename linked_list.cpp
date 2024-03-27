@@ -18,6 +18,7 @@ Node* AddToBeginning(List &L, void *data) {
         cur->next = L.head;
         L.head = cur;
     }
+    L.size++;
     return cur;
 }
 
@@ -32,6 +33,7 @@ Node* AddToEnd(List &L, void *data) {
         L.tail->next = cur;
         L.tail = cur;
     }
+    L.size++;
     return cur;
 }
 
@@ -40,16 +42,56 @@ Node* RemoveAtPos(List &L, Node *pos, Node *prv) {
         return nullptr;
     }
 
+    L.size--;
     if (!prv) { // Remove head
         Node *tmp = L.head;
         L.head = L.head->next;
-        // TODO Deallocate continuous memory chunks
         delete tmp;
         return L.head;
     } else {
         prv->next = pos->next;
-        // TODO Same
         delete pos;
         return prv->next;
     }
 }
+
+bool ListContains(List &L, void *data, bool (*pred)(void*, void*)) {
+    Node *cur = L.head;
+    while (cur) {
+        if (pred(cur->data, data)) {
+            return true;
+        }
+
+        cur = cur->next;
+    }
+
+    return false;
+}
+
+/* Queue */
+//Queue& CreateQueue() {
+    //Queue *Q = new Queue;
+    //return *Q;
+//}
+
+//Node* Enqueue(Queue &Q, void *data) {
+    //AddToEnd(Q, data);
+//}
+
+//Node* EnqueueTail(Queue &Q, void *data) {
+    //AddToBeginning(Q, data);
+//}
+
+//void* FrontQueue(Queue &Q) {
+    //return Q.head->data;
+//}
+
+//void* TailQueue(Queue &Q) {
+    //return Q.tail->data;
+//}
+
+//void Dequeue(Queue &Q) {
+    //RemoveAtPos(Q, Q.head, nullptr);
+//}
+
+/* Arrays */

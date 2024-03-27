@@ -14,13 +14,15 @@ void MoveToCell(Board &board, int x, int y);
 
 void ChooseCell(Board &board, int x, int y);
 
+void GameRemoveCell(Board &board, Cell cell);
+
 /**
  * Draw a cell which has top left corner at (x, y).
  * (x, y) is a position in console screen.
  * 
  * c: Character which cell displays.
 */
-void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kWhite, int background_color = kBackgroundBlack);
+void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault);
 
 /**
  * Draw a cell from background text file.
@@ -32,7 +34,7 @@ void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y);
 /**
  * path: Path from 1st matched cell to 2nd one.
 */
-void DrawMatching(const Cell *path, int n);
+void DrawMatching(const Cell *path, int n, bool clear);
 
 /**
  * Outer border surrounding (actual) board.

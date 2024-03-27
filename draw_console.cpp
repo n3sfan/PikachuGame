@@ -39,6 +39,8 @@ int GetSpecialChar() {
         case '\n':
             // Enter is a new line, which is CRLF or LF (Windows or Linux).
             return kKeyEnter;
+        case '\b':
+            return kKeyBackspace;
         case kKeyEsc:
             return kKeyEsc;
         default:

@@ -4,6 +4,8 @@
 
 #include "draw_console.h"
 #include "game_stage.h"
+#include "structs.h"
+#include "board.h"
 
 using namespace std;
 
@@ -38,18 +40,15 @@ int main() {
     cout << "\x1b[?25l";
 
     // Game
-    cout << "\x1b[31;42mHello";
+    // while (true) {
+
+    // }
+    Board &board = StartGame(4, 6);
     while (true) {
-
+        int ch = GetSpecialChar();
+        OnKeyPressed(board, ch);
+        //cout << chdd << '\n';
     }
-
-    //Board &board = StartGame(4, 6);
-    
-    //while (true) {
-        //int ch = GetSpecialChar();
-        //OnKeyPressed(board, ch);
-        ////cout << chdd << '\n';
-    //}
 
     return 0;
 }
