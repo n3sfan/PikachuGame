@@ -12,6 +12,10 @@ struct Cell {
     Cell(int x, int y): x(x), y(y) {}
 };
 
+struct Player{
+    string name;
+    int score;
+};
 struct Board {
     char **cells;  
     int m, n;

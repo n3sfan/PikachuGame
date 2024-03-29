@@ -27,8 +27,7 @@ void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kWhite, 
  * file_x, file_y: character position in text file
  * x, y: position in console screen.
 */
-void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y);
-
+// void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y);
 /**
  * path: Path from 1st matched cell to 2nd one.
 */
