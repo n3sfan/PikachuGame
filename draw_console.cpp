@@ -4,6 +4,9 @@
 
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <string>
+#include <vector>
 
 using namespace std;
 
@@ -87,6 +90,25 @@ string SetColor(int text, int background) {
 string SetColor(int text) {
     return SetColor(text, 0);
 }
+
+void DrawBackgroundCell(const string& filename, int x, int y) {
+    ifstream file(filename);
+    vector<string> lines;
+    string line;
+    while (getline(file, line)) {
+        lines.push_back(line);
+    }
+
+    // In ảnh từ vị trí (x, y)
+    for (size_t i = 0; i < lines.size(); ++i) {
+        // In background tại vị trí x, y
+        GoToCursorPos(y + i, x);
+        cout << lines[i] << endl;
+        
+    }
+    file.close();
+}
+
 
 void SetBackgroundColor(int color) {         
     // cout << "\x1b[0K";

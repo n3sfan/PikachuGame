@@ -32,6 +32,10 @@ struct Cell {
 };
 
 // TODO Constructor destructor
+struct Player{
+    string name;
+    int score;
+};
 struct Board {
     int m, n;
     int cur_x = 0, cur_y = 0;
