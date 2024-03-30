@@ -55,6 +55,17 @@ Node* RemoveAtPos(List &L, Node *pos, Node *prv) {
     }
 }
 
+Node* ListGet(List &L, int i) {
+    if (i < 0)
+        return nullptr;
+    
+    Node *cur = L.head;
+    for (int j = 1; j <= i && cur; ++j) {
+        cur = cur->next;
+    }
+    return cur;
+}
+
 bool ListContains(List &L, void *data, bool (*pred)(void*, void*)) {
     Node *cur = L.head;
     while (cur) {
@@ -66,6 +77,16 @@ bool ListContains(List &L, void *data, bool (*pred)(void*, void*)) {
     }
 
     return false;
+}
+
+int ListLength(List &L) {
+    int len = 0;
+    Node *cur = L.head;
+    while (cur) {
+        ++len;
+        cur = cur->next;
+    }
+    return len;
 }
 
 /* Queue */

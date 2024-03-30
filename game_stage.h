@@ -4,7 +4,7 @@
 #include "structs.h"
 #include "draw_console.h"
 
-Board& StartGame(int rows, int columns);
+Board& StartGame(int rows, int columns, bool linked_list);
 
 void StopGame(Board &board);
 
@@ -14,6 +14,10 @@ void MoveToCell(Board &board, int x, int y);
 
 void ChooseCell(Board &board, int x, int y);
 
+void GameRemoveCell(Board &board, Cell cell, bool redraw_rows);
+/**
+ * Is called when Player creates a matching, remove the cells.
+*/
 void GameRemoveCell(Board &board, Cell cell);
 
 /**
@@ -23,6 +27,8 @@ void GameRemoveCell(Board &board, Cell cell);
  * c: Character which cell displays.
 */
 void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault);
+
+void DrawEmptyCell(Cell c);
 
 /**
  * Draw a cell from background text file.
@@ -41,7 +47,17 @@ void DrawMatching(const Cell *path, int n, bool clear);
 */
 void DrawBorder(Board &board);
 
+/**
+ * Draw boards starting from row x.
+*/
+void DrawBoard(Board &board, int x);
+
 void DrawBoard(Board &board);
+
+/*
+* Draw a row from cell (x, y) at row's cursor pos
+*/
+void DrawRow(Board &board, int x, int y);
 
 void NotifyCell(Board &board, int x, int y, int state);
 

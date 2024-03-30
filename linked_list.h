@@ -3,7 +3,7 @@
 
 struct Node {
     Node *next = nullptr;
-    // A pointer to a primitive or class, not array!
+    // A pointer to a primitive or class, no array!
     void *data = nullptr;
 };
 
@@ -23,8 +23,13 @@ Node* AddToEnd(List &L, void *data);
 
 Node* RemoveAtPos(List &L, Node *pos, Node *prv);
 
+Node* ListGet(List &L, int i);
+
 bool ListContains(List &L, void *data, bool (*pred)(void*, void*));
 
+int ListLength(List &L);
+
+// No ClearList, as it is left to the caller. We don't know how to delete variable "data" of Node.
 /* Queue */
 Queue& CreateQueue();
 

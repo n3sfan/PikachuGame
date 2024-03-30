@@ -1,4 +1,6 @@
 #include <windows.h>
+#include <io.h>
+#include <fcntl.h>
 
 #include <iostream>
 
@@ -33,6 +35,9 @@ int main() {
         cout << "Cannot run Game, please upgrade to >= Windows 10 TH2.\n" << GetLastError() << "\n";
         return 1;
     }
+    // Maximize window
+    HWND hWnd = GetConsoleWindow();
+    ShowWindow(hWnd, SW_MAXIMIZE);
 
     EraseScreen();
     GoToCursorPos(0, 0);
@@ -41,9 +46,13 @@ int main() {
 
     // Game
     // while (true) {
-
     // }
-    Board &board = StartGame(4, 6);
+    Board &board = StartGame(4, 6, true);
+    // board.SetLetter(1, 1, board.GetLetter(1, 4));
+    // int n;
+    // Cell *path = TraverseCells(board, Cell(1, 1), Cell(1, 4), n);
+
+
     while (true) {
         int ch = GetSpecialChar();
         OnKeyPressed(board, ch);

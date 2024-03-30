@@ -5,10 +5,19 @@
 #ifndef GAME_BOARD_H_
 #define GAME_BOARD_H_
 
+struct Vertex {
+    int x, y;
+    int turn_type, turns;
+};
+
+namespace Game {
+    extern bool version_linked_list;
+}
+
 /**
  * (rows * columns) must be even. 
 */
-Board& GenerateBoard(int rows, int columns);
+Board& GenerateBoard(int rows, int columns, bool linked_list);
 
 void DeleteBoard(Board &board);
 
@@ -42,13 +51,16 @@ void RemoveChosenCell(Board &board, int x, int y);
 */
 bool CheckMatching(Board &board);
 
-Cell* TraverseChosenCells(Board &board, int &n);
-Cell* TraversePathI(Cell c1, Cell c2, int &n);
+Cell *TraverseChosenCells2(Board &board, int &n);
+Cell *TraverseCells(Board &board, Cell c1, Cell c2, int &n);
+void TraverseMatching(Board &board, Vertex ****trace, int x, int y, int dest_x, int dest_y, int turn_type, int turns);
+// Cell* TraverseChosenCells(Board &board, int &n);
+// Cell* TraversePathI(Cell c1, Cell c2, int &n);
 
-bool AreMatchingI(Board &board, const Cell &c1, const Cell &c2);
-bool AreMatchingL(Board &board, const Cell &c1, const Cell &c2, Cell &corner);
-bool AreMatchingU(Board &board, Cell c1, Cell c2, Cell &corner1, Cell &corner2);
-bool AreMatchingZ(Board &board, Cell c1, Cell c2, Cell &corner1, Cell &corner2);
+// bool AreMatchingI(Board &board, const Cell &c1, const Cell &c2);
+// bool AreMatchingL(Board &board, const Cell &c1, const Cell &c2, Cell &corner);
+// bool AreMatchingU(Board &board, Cell c1, Cell c2, Cell &corner1, Cell &corner2);
+// bool AreMatchingZ(Board &board, Cell c1, Cell c2, Cell &corner1, Cell &corner2);
 
-bool TraverseTo(Board &board, int x, int y, int dest_x, int dest_y, List &path, int turn_type = -1);
+// bool TraverseTo(Board &board, int x, int y, int dest_x, int dest_y, List &path, int turn_type = -1);
 #endif // GAME_BOARD_H_

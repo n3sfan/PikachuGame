@@ -25,15 +25,30 @@ using namespace std;
 
 struct Cell {
     int x, y;
+    char letter = ' ';
     Cell(int x = 0, int y = 0): x(x), y(y) {}
 
     friend bool operator==(const Cell &a, const Cell &o);
 };
 
+// TODO Constructor destructor
 struct Board {
-    char **cells;  
     int m, n;
     int cur_x = 0, cur_y = 0;
+
+    Board(int m, int n);
+
+    virtual char GetLetter(int x, int y) = 0;
+    virtual void SetLetter(int x, int y, char letter) = 0;
+    virtual void RemoveCell(int x, int y) = 0;
+    /**
+     * Including 2 empty border rows.
+    */
+    virtual int GetGameRows() = 0;
+    /**
+     * Including 2 empty border rows.
+    */
+    virtual int GetGameRowSize(int x) = 0;
     
     /** 
      * Elements are Cells.
@@ -42,13 +57,50 @@ struct Board {
     List chosen_cells; 
 };
 
+struct BoardInt: Board {
+    char **cells;  
+
+    BoardInt(int m, int n);
+
+    char GetLetter(int x, int y) override;
+    void SetLetter(int x, int y, char letter) override;
+    void RemoveCell(int x, int y) override;
+    int GetGameRows() override;
+    int GetGameRowSize(int x) override;
+
+    ~BoardInt();
+};
+
+struct BoardLL: Board {
+    /**
+     * m, n is updated.
+    */
+    /**
+     * Can only be a pointer here, reference cannot be used.
+     * Not reference or pointer is not a choice either, as it copy the List created.
+    */
+    List* cells;
+    int game_rows;
+
+    BoardLL(int m, int n);
+
+    char GetLetter(int x, int y) override;
+    void SetLetter(int x, int y, char letter) override;
+    void RemoveCell(int x, int y) override;
+    int GetGameRows() override;
+    int GetGameRowSize(int x) override;
+
+
+    ~BoardLL();
+};
+
 struct Account {
     string username;
     string password;
 };
 
-struct GameStage {
-    Account user;
-    Board board;
-};
+// struct GameStage {
+//     Account user;
+//     Board board;
+// };
 #endif // GAME_STRUCTS_H_

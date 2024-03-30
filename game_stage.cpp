@@ -19,8 +19,10 @@ const int kCellUnhovering = 5;
 const int kCellMatchCorrect = 3;
 const int kCellMatchIncorrect = 4;
 
-Board& StartGame(int m, int n) {
-    Board &board = GenerateBoard(m, n); 
+Board& StartGame(int m, int n, bool linked_list) {
+    Game::version_linked_list = linked_list;
+
+    Board &board = GenerateBoard(m, n, linked_list); 
     DrawBoard(board);
     MoveToCell(board, 1, 1);
 
@@ -55,15 +57,16 @@ void DrawCell(int x, int y, char c, int char_mode, int char_color, int backgroun
     int last_x, last_y; 
     ReturnCursorPos(last_x, last_y);
     GoToCursorPos(x, y);
-    std::cout << SetColor(0, background_color) << " ";
+    std::cout << (char)218;
     for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << "-";
+        std::cout << (char)196;
     }
-    std::cout << " ";
-
-    for (int i = 1; i < kCellHeight - 1; ++i) {
+    std::cout << (char)191;
+    // cout << SetColor(0, background_color);
+     for (int i = 1; i < kCellHeight - 1; ++i) {
         GoToCursorPos(x + i, y);
-        std::cout << "|";
+        std::cout << (char)179;
+        cout << SetColor(0, 0, background_color);
         for (int j = 1; j < kCellWidth - 1; ++j) {
             if (i == (kCellHeight - 1) / 2 && j == (kCellWidth - 1) / 2) {
                 std::cout << SetColor(0, char_mode, background_color) << c << SetColor(char_mode, kDefault, 0);
@@ -71,20 +74,54 @@ void DrawCell(int x, int y, char c, int char_mode, int char_color, int backgroun
                 std::cout << " ";
             }
         }
-        std::cout << "|";
+        cout << SetColor(0, 0, kBackgroundDefault);
+        std::cout << (char)179;
+    }
+
+    GoToCursorPos(x + kCellHeight - 1, y);
+    std::cout << (char)192;
+    for (int i = 1; i < kCellWidth - 1; ++i) {
+        std::cout << (char)196; 
+    }
+    std::cout << (char)217;
+
+    // Reset to original pos
+    GoToCursorPos(last_x, last_y);
+    std::cout << SetColor(kDefault);
+}
+
+void DrawEmptyCell(Cell cell) {
+    // Draw empty cell and border
+    int last_x, last_y; 
+    ReturnCursorPos(last_x, last_y);
+
+    int x, y;
+    CellToPos(cell, x, y);
+    GoToCursorPos(x, y);
+    std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
+    for (int i = 1; i < kCellWidth - 1; ++i) {
+        std::cout << " ";
+    }
+    std::cout << " ";
+
+    for (int i = 1; i < kCellHeight - 1; ++i) {
+        GoToCursorPos(x + i, y);
+        std::cout << " ";
+        for (int j = 1; j < kCellWidth - 1; ++j) {
+            std::cout << " ";
+        }
+        std::cout << " ";
     }
 
     GoToCursorPos(x + kCellHeight - 1, y);
     std::cout << " ";
     for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << "-"; 
+        std::cout << " "; 
     }
     std::cout << " ";
 
     // Reset to original pos
     GoToCursorPos(last_x, last_y);
-
-    std::cout << SetColor(kDefault);
 }
 
 void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y) {
@@ -134,7 +171,7 @@ void DrawMatching(const Cell *path, int n, bool clear) {
                 if (clear) {
                     std::cout << " ";
                 } else {
-                std::cout << (hori ? "-" : "|");
+                    std::cout << ("#");
                 }
             }
         }
@@ -144,13 +181,22 @@ void DrawMatching(const Cell *path, int n, bool clear) {
 }
 
 void DrawBoard(Board &board) {
-    for (int i = 1; i < board.m - 1; ++i) {
-        for (int j = 1; j < board.n - 1; ++j) {
-            if (IsCellEmpty(board, i, j)) {
-                GameRemoveCell(board, Cell(i, j));
-            } else {
-               DrawCell(i * kCellHeight, j * kCellWidth, board.cells[i][j]);
-            }
+    DrawBoard(board, 1);
+}
+
+void DrawBoard(Board &board, int x) {
+    for (int i = x; i < board.m - 1; ++i) {
+        DrawRow(board, i, 1);
+    }
+}
+
+void DrawRow(Board &board, int x, int y) {
+    for (int j = y; j < board.n - 1; ++j) {
+        if (IsCellEmpty(board, x, j)) {
+            //GameRemoveCell(board, Cell(x, j));
+            DrawEmptyCell(Cell(x, j));
+        } else {
+            DrawCell(x * kCellHeight, j * kCellWidth, board.GetLetter(x, j));
         }
     }
 }
@@ -161,27 +207,29 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
         int d = (key_pressed == kKeyDown ? 1 : -1);
         bool cycled = false;
 
+        // This loop runs once in LL.
         for (int tx = x + d; ; tx += d) {
             // border cell
-            if (tx == 0 || tx == board.m - 1) {
+            if (tx == 0 || tx == board.GetGameRows() - 1) {
                 if (cycled)
                     break;
 
                 cycled = true;
                 if (tx == 0)
-                    tx = board.m - 2;
+                    tx = board.GetGameRows() - 2;
                 else   
                     tx = 1;
             }
 
             int d2 = 0;
-            while (1 <= y - d2 || y + d2 <= board.n - 1) {
-                if (IsInside(board, tx, y - d2) && !IsCellEmpty(board, tx, y - d2)) {
+            int n = board.GetGameRowSize(x);
+            while (1 <= y - d2 || y + d2 <= n - 1) {
+                if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
                     next_x = tx;
                     next_y = y - d2;
                     return;
                 }
-                if (IsInside(board, tx, y + d2) && !IsCellEmpty(board, tx, y + d2)) {
+                if (y + d2 <= n - 1 && !IsCellEmpty(board, tx, y + d2)) {
                     next_x = tx;
                     next_y = y + d2;
                     return;
@@ -194,26 +242,28 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
         bool cycled = false;
 
         for (int ty = y + d; ; ty += d) {
+            int n = board.GetGameRowSize(x);
             // border cell
-            if (ty == 0 || ty == board.n - 1) {
+            if (ty == 0 || ty == n - 1) {
                 if (cycled)
                     break;
 
                 cycled = true;
                 if (ty == 0)
-                    ty = board.n - 2;
+                    ty = n - 2;
                 else   
                     ty = 1;
             }
 
             int d2 = 0;
+            // This loop runs once in LL.
             while (1 <= x - d2 || x + d2 <= board.m - 1) {
-                if (IsInside(board, x - d2, ty) && !IsCellEmpty(board, x - d2, ty)) {
+                if (1 <= x - d2 && !IsCellEmpty(board, x - d2, ty)) {
                     next_x = x - d2;
                     next_y = ty;
                     return; 
                 }
-                if (IsInside(board, x + d2, ty) && !IsCellEmpty(board, x + d2, ty)) {
+                if (x + d2 <= board.m - 1 && !IsCellEmpty(board, x + d2, ty)) {
                     next_x = x + d2;
                     next_y = ty;
                     return;
@@ -307,34 +357,36 @@ void ChooseCell(Board &board, int x, int y) {
 
     if (board.chosen_cells.size == 2) {
         int n;
-        Cell* path = TraverseChosenCells(board, n);
+        Cell* path = TraverseChosenCells2(board, n);
         Cell c1 = *(Cell*) board.chosen_cells.head->data;
         Cell c2 = *(Cell*) board.chosen_cells.tail->data;
+        // Linked list
+        Cell c3 = c2;
         RemoveChosenCell(board, c1.x, c1.y);
         RemoveChosenCell(board, c2.x, c2.y); 
 
+        bool flag1 = board.GetLetter(c1.x, 2) == ' ';
+        bool flag2 = false;
+        
         if (path) {
             // Remove cells in the board first, to avoid moving to deleted cell bug.
-            BoardRemoveCell(board, c1.x, c1.y);
-            BoardRemoveCell(board, c2.x, c2.y);
-           
+            if (!Game::version_linked_list) {
+                BoardRemoveCell(board, c1.x, c1.y);
+                BoardRemoveCell(board, c2.x, c2.y);
+            } else {
+                BoardRemoveCell(board, c1.x, c1.y);
+                c3 = c2;
+                if (flag1 && c1.x < c2.x) 
+                    --c3.x;
+                else if (c1.x == c2.x && c1.y < c2.y)
+                    --c3.y;
+                flag2 = board.GetLetter(c2.x, 2) == ' ';
+                BoardRemoveCell(board, c3.x, c3.y);
+            }
+
             DrawMatching(path, n, false);
             Sleep(1000);
             DrawMatching(path, n, true);
-
-            bool found = false;
-            for (int i = 1; i < board.m - 1; ++i) {
-                for (int j = 1; j < board.n - 1; ++j) {
-                    if (!IsCellEmpty(board, i, j)) {
-                        MoveToCell(board, i, j);
-                        found = true; 
-                        break;
-                    }
-                }
-
-                if (found)
-                    break;
-            }
 
             // int next_x, next_y;
             // int keys[] = {kKeyRight, kKeyLeft, kKeyUp, kKeyDown};
@@ -356,8 +408,27 @@ void ChooseCell(Board &board, int x, int y) {
         NotifyCell(board, c2.x, c2.y, kCellUnchosen);
        
         if (path) {
-            GameRemoveCell(board, c1);
-            GameRemoveCell(board, c2);
+            if (!Game::version_linked_list) {
+                GameRemoveCell(board, c1);
+                GameRemoveCell(board, c2);
+            } else {
+                GameRemoveCell(board, c1, flag1);
+                GameRemoveCell(board, c2, flag2);
+            }
+            
+            bool found = false;
+            for (int i = 1; i < board.m - 1; ++i) {
+                for (int j = 1; j < board.n - 1; ++j) {
+                    if (!IsCellEmpty(board, i, j)) {
+                        MoveToCell(board, i, j);
+                        found = true; 
+                        break;
+                    }
+                }
+
+                if (found)
+                    break;
+            }
         } else {
             NotifyCell(board, x, y, kCellHovering);
         }
@@ -386,40 +457,28 @@ void ChooseCell(Board &board, int x, int y) {
     }
 }
 
-void GameRemoveCell(Board &board, Cell cell) {
-    BoardRemoveCell(board, cell.x, cell.y);
+void GameRemoveCell(Board &board, Cell cell, bool redraw_rows) {
+    // BoardRemoveCell(board, cell.x, cell.y);
 
-    // Draw empty cell and border
-    int last_x, last_y; 
-    ReturnCursorPos(last_x, last_y);
-
-    int x, y;
-    CellToPos(cell, x, y);
-    GoToCursorPos(x, y);
-    std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
-    for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << " ";
-    }
-    std::cout << " ";
-
-    for (int i = 1; i < kCellHeight - 1; ++i) {
-        GoToCursorPos(x + i, y);
-        std::cout << " ";
-        for (int j = 1; j < kCellWidth - 1; ++j) {
-            std::cout << " ";
+    // If linked list:
+    //  redraw only 1 column from (x, y) if second element not empty.
+    //  otherwise redraw from row x.
+    if (!Game::version_linked_list) {
+        DrawEmptyCell(cell);
+    } else {
+        if (redraw_rows) {
+            DrawBoard(board, cell.x);
+        } else {
+            DrawRow(board, cell.x, cell.y);
         }
-        std::cout << " ";
     }
+}
 
-    GoToCursorPos(x + kCellHeight - 1, y);
-    std::cout << " ";
-    for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << " "; 
-    }
-    std::cout << " ";
-
-    // Reset to original pos
-    GoToCursorPos(last_x, last_y);
+/**
+ * Redraw cell after removing in Board.
+*/
+void GameRemoveCell(Board &board, Cell cell) {
+    GameRemoveCell(board, cell, false);
 }
 
 void MoveToCell(Board &board, int x, int y) {
@@ -435,6 +494,7 @@ void CellToPos(const Cell &c, int &x, int &y) {
 
 /**
  * Draw decoration and play audio.
+ * TODO Reset color mode (bold)
 */
 void NotifyCell(Board &board, int x, int y, int state) {
     Cell cur(x, y);
@@ -444,19 +504,19 @@ void NotifyCell(Board &board, int x, int y, int state) {
    
     switch (state) {
         case kCellChosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.cells[x][y], kBold, kDefault, kBackgroundBlue);
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundBlue);
             break;
         case kCellUnchosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.cells[x][y], 0, kDefault, kBackgroundDefault); 
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
             if (!ListContains(board.chosen_cells, &cur, pred)) {
-                DrawCell(x * kCellHeight, y * kCellWidth, board.cells[x][y], 0, kDefault, kBackgroundGreen);
+                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundGreen);
             }
             break;
         case kCellUnhovering:
             if (!ListContains(board.chosen_cells, &cur, pred)) {
-                DrawCell(x * kCellHeight, y * kCellWidth, board.cells[x][y], 0, kDefault, kBackgroundDefault);
+                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault);
             }
 
             break;

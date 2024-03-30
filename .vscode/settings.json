@@ -6,6 +6,9 @@
         "string_view": "cpp",
         "initializer_list": "cpp",
         "new": "cpp",
-        "cstddef": "cpp"
+        "cstddef": "cpp",
+        "iosfwd": "cpp",
+        "format": "cpp",
+        "span": "cpp"
     }
 }
