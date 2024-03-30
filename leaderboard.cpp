@@ -6,6 +6,7 @@
 #include <sstream>
 #include "structs.h"
 #include "draw_console.h"
+#include <iomanip>
 using namespace std;
 
 // So sánh điểm số giữa các người chơi
@@ -41,6 +42,9 @@ vector<Player> readLeaderboard(const string& filename) {
             leaderboard.push_back({name, score}); // Thêm vào leaderboard
         }
     }
+    file.close();
+    // Sắp xếp leaderboard theo điểm số giảm dần
+    sort(leaderboard.begin(), leaderboard.end(), comparePlayers);
     return leaderboard;
 }
 
@@ -56,68 +60,17 @@ void Leaderboard(const vector<Player>& leaderboard) {
     cout << "\t---------------------------------\n";
     for (size_t i = 0; i < leaderboard.size(); ++i) {
         GoToCursorPos(9 + i, 35);
-        cout << "\t" << i + 1 << ". " << leaderboard[i].name << "\t\t" << leaderboard[i].score << "\n";
+        cout << "\t" << i + 1 << ". " << leaderboard[i].name ;
+        GoToCursorPos(9 + i, 70);
+        cout << leaderboard[i].score << "\n";
     }
-    GoToCursorPos(20, 35);
+    GoToCursorPos(30, 35);
     cout << "\t---------------------------------\n";
-    GoToCursorPos(21, 35);
+    GoToCursorPos(31, 35);
     cout << "\tPress Esc to return to main menu...\n";
 }
+// Vẽ leaderboard
 void DrawStageLeaderboard(){
-    // cout << SetColor(0, 0 , kBackgroundBlack);
     vector<Player> leaderboard = readLeaderboard("stage_filename.txt");
     Leaderboard(leaderboard);
 }
-
-// Vẽ Leaderboard
-// void DrawStageLeaderboard(string stage_filename, vector<Player> &leaderboard){
-//     // Nạp danh sách từ file vào Leaderboard
-//     leaderboard.clear();
-//     ifstream fin(stage_filename);
-//     string name;
-//     int score;
-//     while (fin >> name >> score) {
-//         leaderboard.push_back({name, score});
-//     }
-//     fin.close();
-//     // In ra Leaderboard
-//     GoToCursorPos(5, 35);
-//     cout << "\t\tLeaderboard\n";
-//     GoToCursorPos(6, 35);
-//     cout << "\t---------------------------------\n";
-//     GoToCursorPos(7, 35);
-//     cout << "\tName\t\tScore\n";
-//     GoToCursorPos(8, 35);
-//     cout << "\t---------------------------------\n";
-//     for (const auto& player : leaderboard) {
-//         GoToCursorPos(9, 35);
-//         cout << player.name << "\t\t" << player.score << "\n";
-//     }
-//     GoToCursorPos(10, 35);
-//     cout << "\t---------------------------------\n";
-    
-// }
-
-// int main() {
-//     string stage_filename = "3x4 - Easy";
-//     vector<Player> leaderboard = {
-//         {"Player 1", 100},
-//         {"Player 2", 150},
-//         {"Player 3", 80},
-//         {"Player 4", 200}
-//     };
-
-//     bool running = true;
-//     while (running) {
-//         DrawStageLeaderboard(stage_filename, leaderboard);
-//         cout << "Press Esc to return to main menu...\n";
-        
-//         while (!_kbhit()) {} // Chờ người dùng nhấn một phím
-//         if (_getch() == 27) { // Kiểm tra xem phím nhấn có phải là Esc (mã ASCII: 27) không
-//             running = false; // Thoát khỏi vòng lặp
-//             // Trở về main menu
-//         }
-//     }
-
-//     return 0;
-// }

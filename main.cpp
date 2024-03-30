@@ -1,7 +1,8 @@
 #include <windows.h>
 
 #include <iostream>
-
+#include <chrono>
+#include <thread>
 #include "draw_console.h"
 #include "game_stage.h"
 #include <conio.h>
@@ -22,12 +23,12 @@ ScreenState currentScreen = MENU;
 
 
 
-// HANDLE h_stdout;
+HANDLE h_stdout;
 
 // /**
 //  * Switch between menu, game, leaderboard screens.
 // */
-// enum class MenuOption { PLAY_GAME, LEADERBOARD, QUIT };
+
 
 // // Hàm thay đổi màu chữ
 // void setTextColor(int color) {
@@ -36,14 +37,7 @@ ScreenState currentScreen = MENU;
 // }
 
 
-// Xóa nháy chuột 
-void Nocursortype()
-{
-	CONSOLE_CURSOR_INFO Info;
-	Info.bVisible = FALSE;
-	Info.dwSize = 20;
-	SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Info);
-}
+
 // Xóa dữ liệu bằng khoảng trắng
 void clearPreviousOutput(int startX, int startY, int width, int height) {
     cout << SetColor(0, 0, kBackgroundBlack);
@@ -62,7 +56,7 @@ void thanh_sang(int x, int y, int w, int h, int b_color, string nd){
             GoToCursorPos(iy, ix); cout << " ";
         }
     }
-    cout << SetColor(0, kBlack, 0);
+    cout << SetColor(0, kWhite, 0);
     GoToCursorPos(y + 1, x + 1);
     cout << nd;
 
@@ -76,7 +70,7 @@ void box(int x, int y, int w, int h, int t_color, int b_color, string nd){
         }
     }
     
-    cout << SetColor(0, kBlack, 0);
+    cout << SetColor(0, kWhite, 0);
     GoToCursorPos(y + 1, x + 1);
     cout << nd;
     // Ve vien
@@ -101,24 +95,36 @@ void box(int x, int y, int w, int h, int t_color, int b_color, string nd){
     GoToCursorPos(y + h, x + w); cout << char(217);
 }
 
+// Hàm in ra từng kí tự có delay
+void printSlowly(const string& text, int delay) {
+    for (char c : text) {
+        cout << c << flush; // In từng ký tự một mà không cần buffer
+        this_thread::sleep_for(chrono::milliseconds(delay)); // Đợi một khoảng thời gian
+    }
+}
 
 void menu(){
     
     GoToCursorPos(y - 12, x - 20);
+    cout << SetColor(0, kGreen, 0);
+    DrawBackgroundCell("background2.txt",x - 40, y + 5 );
+    cout << SetColor(0, kYellow, 0);
+    DrawBackgroundCell("background6.txt", x + 20, y - 5);
     cout << SetColor(0, kRed, 0);
-    DrawBackgroundCell("background.txt", x - 20, y - 12);
-    Nocursortype();
+    DrawBackgroundCell("background7.txt", x - 20, y - 12);
+    cout << "\x1b[?25l";// Xóa nháy chuột
     // setting
     int w = 20;
     int h = 2; 
-    int t_color = kGreen;
-    int b_color = kBackgroundBlue;
+    int t_color = kWhite;
+    int b_color = kBackgroundBlack;
     int b_color_sang = kBackgroundRed;
     string nd = "Play Game";
     string nd2 = "Leaderboard";
     string nd3 = "Quit";
     int sl = 3;
     // In ra menu 
+    cout << SetColor(0, 0, kBackgroundWhite);
     box( x, y, w, h, t_color, b_color, nd);
     box( x, y + 2, w, h, t_color, b_color, nd2);
     GoToCursorPos(y + 2, x); cout << char(195);
@@ -239,6 +245,50 @@ void menu(){
 // }
 
 int main() {
+    HANDLE h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    if (h_stdout == INVALID_HANDLE_VALUE) {
+        cout << "Cannot get Console Handle: " << GetLastError() << '\n';
+        return 1;
+    }
+
+    DWORD consoleMode;
+    GetConsoleMode(h_stdout, &consoleMode);
+    consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+    if (!SetConsoleMode(h_stdout, consoleMode)) {
+        cout << "Cannot run Game, please upgrade to >= Windows 10 TH2.\n" << GetLastError() << "\n";
+        return 1;
+    }
+    HWND hwnd = GetConsoleWindow();
+    ShowWindow(hwnd, SW_SHOWMAXIMIZED);
+    cout << "\x1b[?25l";
+    string asciiArt = R"(
+/\ \  __/\ \        /\_ \
+\ \ \/\ \ \ \     __\//\ \     ___    ___     ___ ___      __
+ \ \ \ \ \ \ \  /'__`\\ \ \   /'___\ / __`\ /' __` __`\  /'__`\
+  \ \ \_/ \_\ \/\  __/ \_\ \_/\ \__//\ \L\ \/\ \/\ \/\ \/\  __/
+   \ `\___x___/\ \____\/\____\ \____\ \____/\ \_\ \_\ \_\ \____\
+    '\/__//__/  \/____/\/____/\/____/\/___/  \/_/\/_/\/_/\/____/
+
+            /\ \__
+            \ \ ,_\   ___        ___   __  __  _ __
+             \ \ \/  / __`\     / __`\/\ \/\ \/\`'__\
+              \ \ \_/\ \L\ \   /\ \L\ \ \ \_\ \ \ \/
+               \ \__\ \____/   \ \____/\ \____/\ \_\
+                \/__/\/___/     \/___/  \/___/  \/_/
+
+                 __      __      ___ ___      __
+               /'_ `\  /'__`\  /' __` __`\  /'__`\
+              /\ \L\ \/\ \L\.\_/\ \/\ \/\ \/\  __/
+              \ \____ \ \__/.\_\ \_\ \_\ \_\ \____\
+               \/___L\ \/__/\/_/\/_/\/_/\/_/\/____/
+                 /\____/
+                 \_/__/
+)";
+    // In ASCII art một cách từ từ với delay là 5 milliseconds
+    printSlowly(asciiArt, 5);
+
+
     // vector<Player> leaderboard = readLeaderboard("stage_filename.txt");
     // DrawStageLeaderboard(leaderboard);
     // currentScreen = LEADERBOARD;
@@ -265,21 +315,7 @@ int main() {
 
     
 
-    // h_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-
-    // if (h_stdout == INVALID_HANDLE_VALUE) {
-    //     cout << "Cannot get Console Handle: " << GetLastError() << '\n';
-    //     return 1;
-    // }
-
-    // DWORD consoleMode;
-    // GetConsoleMode(h_stdout, &consoleMode);
-    // consoleMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;
-    // if (!SetConsoleMode(h_stdout, consoleMode)) {
-    //     cout << "Cannot run Game, please upgrade to >= Windows 10 TH2.\n" << GetLastError() << "\n";
-    //     return 1;
-    // }
-
+   
     // EraseScreen();
     // GoToCursorPos(0, 0);
     // // Make cursor invisible
