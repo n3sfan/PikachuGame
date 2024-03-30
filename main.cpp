@@ -1,6 +1,4 @@
 #include <windows.h>
-#include <io.h>
-#include <fcntl.h>
 
 #include <iostream>
 #include <chrono>
@@ -28,7 +26,7 @@ ScreenState currentScreen = MENU;
 
 
 HANDLE h_stdout;
-
+static Board *board;
 // /**
 //  * Switch between menu, game, leaderboard screens.
 // */
@@ -101,8 +99,10 @@ void box(int x, int y, int w, int h, int t_color, int b_color, string nd){
 
 // Hàm in ra từng kí tự có delay
 void printSlowly(const string& text, int delay) {
-    for (char c : text) {
-        cout << c << flush; // In từng ký tự một mà không cần buffer
+    for (int i = 0; i < text.size(); i += 10) {
+        for (int j = i; j < ((text.size() < i + 10) ? text.size() : i + 10); ++j) {
+            cout << text[j] << flush; // In từng ký tự một mà không cần buffer
+        }
         this_thread::sleep_for(chrono::milliseconds(delay)); // Đợi một khoảng thời gian
     }
 }
@@ -188,7 +188,8 @@ void menu(){
                     case 1:
                         // Vào Game
                         currentScreen = GAME;
-                        Board &board = StartGame(4, 6, false);
+                        EraseScreen();
+                        board = &StartGame(4, 6, false);
                         return;
                         break;
                     case 2:
@@ -296,7 +297,8 @@ int main() {
                  \_/__/
 )";
     // In ASCII art một cách từ từ với delay là 5 milliseconds
-    printSlowly(asciiArt, 5);
+    printSlowly(asciiArt, 20);
+    Sleep(500);
 
 
     // vector<Player> leaderboard = readLeaderboard("stage_filename.txt");
@@ -305,19 +307,23 @@ int main() {
     // _getch();
     // DrawBackgroundCell("background1.txt", 10 , 10);
     // _getch();
-    while(true){
-        EraseScreen();
-        menu();
-        char input = _getch();
-        if(input == kKeyEsc){
-            if (currentScreen == LEADERBOARD){
-                EraseScreen();
-                // menu();
-                currentScreen = MENU;
-            } else if(currentScreen == GAME){
-                EraseScreen();
-                // menu();
-                currentScreen = MENU;
+    while(true) {
+        if (currentScreen == GAME) {
+            OnKeyPressed(*board, GetSpecialChar());
+        } else {
+            EraseScreen();
+            menu();
+            char input = _getch();
+            if(input == kKeyEsc){
+                if (currentScreen == LEADERBOARD){
+                    EraseScreen();
+                    // menu();
+                    currentScreen = MENU;
+                } else if(currentScreen == GAME){
+                    EraseScreen();
+                    // menu();
+                    currentScreen = MENU;
+                }
             }
         }
     }
