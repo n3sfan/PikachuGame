@@ -31,11 +31,11 @@ struct Cell {
     friend bool operator==(const Cell &a, const Cell &o);
 };
 
-// TODO Constructor destructor
-struct Player{
+struct Player {
     string name;
     int score;
 };
+
 struct Board {
     int m, n;
     int cur_x = 0, cur_y = 0;

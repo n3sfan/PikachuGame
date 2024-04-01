@@ -6,6 +6,9 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <string>
+#include <algorithm>
 
 #include "draw_console.h"
 #include "board.h"
@@ -18,13 +21,38 @@ const int kCellHovering = 2;
 const int kCellUnhovering = 5;
 const int kCellMatchCorrect = 3;
 const int kCellMatchIncorrect = 4;
+const int kCellHint = 6;
+const int kMaxTop = 10;
+
+namespace Game {
+    chrono::_V2::system_clock::time_point score;
+    int m, n;
+}
 
 Board& StartGame(int m, int n, bool linked_list) {
     Game::version_linked_list = linked_list;
+    Game::score = chrono::system_clock::now();
+    Game::m = m;
+    Game::n = n;
 
     Board &board = GenerateBoard(m, n, linked_list); 
+
+    // draw background: diffusion effect
+    Cell *bg_cells = new Cell[90*90];
+    for (int i = 0; i < 90; ++i) {
+        for (int j = 0; j < 90; ++j) {
+            bg_cells[i * 90 + j] = Cell(i, j);
+        }
+    }
+    shuffle(bg_cells, bg_cells + 90*90, rng);
+    for (int k = 0; k < 90*90; ++k) {
+        int i = bg_cells[k].x, j = bg_cells[k].y;
+        DrawBackgroundCell("background1.txt", i, j, i, j, 1, 1);
+    }
     DrawBoard(board);
+
     MoveToCell(board, 1, 1);
+
 
     // Check if a matching exists
     Cell c1, c2;
@@ -53,7 +81,18 @@ void StopGame(Board &board) {
     DeleteBoard(board);
 }
 
-void DrawCell(int x, int y, char c, int char_mode, int char_color, int background_color) { 
+bool IsGameFinished(Board &board) {
+    for (int i = 1; i < board.m - 1; ++i) {
+        for (int j = 1; j < board.n - 1; ++j) {
+            if (!IsCellEmpty(board, i, j)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+void DrawCell(int x, int y, char c, int char_mode, int char_color, int background_color) {     
     int last_x, last_y; 
     ReturnCursorPos(last_x, last_y);
     GoToCursorPos(x, y);
@@ -120,14 +159,36 @@ void DrawEmptyCell(Cell cell) {
     }
     std::cout << " ";
 
+    if (cell.x >= 1 && cell.y >= 1)
+        DrawBackgroundCell("background1.txt", x, y, x, y, kCellHeight, kCellWidth);
     // Reset to original pos
     GoToCursorPos(last_x, last_y);
 }
 
-void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y) {
+void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, int h, int w) {
     ifstream fin(filename.c_str());
-    
+    string line = "";
+    for (int i = 0; i <= file_x; ++i) {
+        if (!std::getline(fin, line))
+            return;
+    }
+
+    int last_x, last_y;
+    ReturnCursorPos(last_x, last_y);
+    for (int i = 0; i < h; ++i) {
+        for (int j = 0; j < w; ++j) {
+            if (file_y + j >= line.size()) {
+                break;
+            }
+            GoToCursorPos(x + i, y + j);
+            std::cout << line[file_y + j];
+        }
+
+        if (!getline(fin, line))
+            break;
+    }
     fin.close();
+    GoToCursorPos(last_x, last_y);
 }
 
 void DrawMatching(const Cell *path, int n, bool clear) {
@@ -196,18 +257,19 @@ void DrawRow(Board &board, int x, int y) {
             //GameRemoveCell(board, Cell(x, j));
             DrawEmptyCell(Cell(x, j));
         } else {
-            DrawCell(x * kCellHeight, j * kCellWidth, board.GetLetter(x, j));
+            DrawCell(x * kCellHeight, j * kCellWidth, board.GetLetter(x, j), kBold, kDefault);
         }
     }
 }
 
-// TODO Buggy, infinite recursion
+// TODO Move in the original dir first, then check later
 void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &next_x, int &next_y) {
     if (key_pressed == kKeyUp || key_pressed == kKeyDown) {
         int d = (key_pressed == kKeyDown ? 1 : -1);
         bool cycled = false;
 
         // This loop runs once in LL.
+        // prioritize searching original direction first
         for (int tx = x + d; ; tx += d) {
             // border cell
             if (tx == 0 || tx == board.GetGameRows() - 1) {
@@ -222,6 +284,33 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
             }
 
             int d2 = 0;
+            int n = board.GetGameRowSize(x);
+            if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
+                next_x = tx;
+                next_y = y - d2;
+                return;
+            }
+            if (y + d2 <= n - 1 && !IsCellEmpty(board, tx, y + d2)) {
+                next_x = tx;
+                next_y = y + d2;
+                return;
+            }
+        }
+        // Not run in LL.
+        for (int tx = x + d; ; tx += d) {
+            // border cell
+            if (tx == 0 || tx == board.GetGameRows() - 1) {
+                if (cycled)
+                    break;
+
+                cycled = true;
+                if (tx == 0)
+                    tx = board.GetGameRows() - 2;
+                else   
+                    tx = 1;
+            }
+
+            int d2 = 1;
             int n = board.GetGameRowSize(x);
             while (1 <= y - d2 || y + d2 <= n - 1) {
                 if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
@@ -241,6 +330,34 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
         int d = (key_pressed == kKeyRight ? 1 : -1);
         bool cycled = false;
 
+        // prioritize searching original direction first
+        for (int ty = y + d; ; ty += d) {
+            int n = board.GetGameRowSize(x);
+            // border cell
+            if (ty == 0 || ty == n - 1) {
+                if (cycled)
+                    break;
+
+                cycled = true;
+                if (ty == 0)
+                    ty = n - 2;
+                else   
+                    ty = 1;
+            }
+
+            int d2 = 0;
+            if (1 <= x - d2 && !IsCellEmpty(board, x - d2, ty)) {
+                next_x = x - d2;
+                next_y = ty;
+                return; 
+            }
+            if (x + d2 <= board.m - 1 && !IsCellEmpty(board, x + d2, ty)) {
+                next_x = x + d2;
+                next_y = ty;
+                return;
+            }
+        }
+        
         for (int ty = y + d; ; ty += d) {
             int n = board.GetGameRowSize(x);
             // border cell
@@ -272,44 +389,11 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
             }
         }
     }
-    
-    // next_x = x;
-    // next_y = y;
-
-    // if (key_pressed == kKeyUp || key_pressed == kKeyDown) { 
-    //     int d = (key_pressed == kKeyUp ? -1 : 1);
-    //     next_x = x + d;
-    //     while (IsInside(board, next_x, next_y) && IsCellEmpty(board, next_x, next_y)) 
-    //         next_x += d;
-
-    //     // at least 1 cell, which is (x, y)
-    //     if (!IsInside(board, next_x, next_y)) {
-    //         if (key_pressed == kKeyDown) {
-    //             FindNextUnmatchedCell(board, 0, y, kKeyDown, next_x, next_y);
-    //         } else {
-    //             FindNextUnmatchedCell(board, board.m - 1, y, kKeyUp, next_x, next_y);
-    //         }
-    //     }
-    // } else { 
-    //     // key right or left 
-    //     int d = (key_pressed == kKeyRight ? 1 : -1);
-    //     next_y += d;
-    //     while (IsInside(board, next_x, next_y) && IsCellEmpty(board, next_x, next_y)) 
-    //         next_y += d;
-
-    //     // at least 1 cell, which is (x, y)
-    //     if (!IsInside(board, next_x, next_y)) {
-    //         if (key_pressed == kKeyRight) {
-    //             FindNextUnmatchedCell(board, x, 0, kKeyRight, next_x, next_y);
-    //         } else {
-    //             FindNextUnmatchedCell(board, x, board.n - 1, kKeyLeft, next_x, next_y);
-    //         }
-    //     }
-    // }
 }
 
 void OnKeyPressed(Board &board, char key) {
     int last_x = board.cur_x, last_y = board.cur_y;
+    Cell c1, c2;
 
     switch (key) {
         case kKeyUp:
@@ -338,22 +422,37 @@ void OnKeyPressed(Board &board, char key) {
             ShuffleBoard(board);
             DrawBoard(board);
             break;
+        case 'h':
+            if (SuggestNextMove(board, c1, c2)) {
+                while (board.chosen_cells.head) {
+                    Cell c = *(Cell*) board.chosen_cells.head->data;
+                    NotifyCell(board, c.x, c.y, kCellUnchosen);
+                    RemoveChosenCell(board, c.x, c.y);
+                }
+
+                AddChosenCell(board, c1.x, c1.y);
+                AddChosenCell(board, c2.x, c2.y);
+                NotifyCell(board, c1.x, c1.y, kCellHint);
+                NotifyCell(board, c2.x, c2.y, kCellHint);
+            }
+            break;
         default:
             break;
     }
 }
 
-// TODO FIX
 void ChooseCell(Board &board, int x, int y) {     
     bool (*pred)(void*, void*) = [](void *element, void *value) -> bool {
         return *((Cell*) element) == *((Cell*) value);
     };
     Cell tmp(x, y);
-    if (board.chosen_cells.size == 2 || ListContains(board.chosen_cells, &tmp, pred))
-        return;
-    
-    AddChosenCell(board, x, y);
-    NotifyCell(board, x, y, kCellChosen);
+    // if (board.chosen_cells.size == 2 || ListContains(board.chosen_cells, &tmp, pred))
+    //     return;
+
+    if (board.chosen_cells.size < 2) {
+        AddChosenCell(board, x, y);
+        NotifyCell(board, x, y, kCellChosen);
+    }
 
     if (board.chosen_cells.size == 2) {
         int n;
@@ -385,7 +484,7 @@ void ChooseCell(Board &board, int x, int y) {
             }
 
             DrawMatching(path, n, false);
-            Sleep(1000);
+            Sleep(700);
             DrawMatching(path, n, true);
 
             // int next_x, next_y;
@@ -401,6 +500,9 @@ void ChooseCell(Board &board, int x, int y) {
             //     }
             // }
         } else {
+            NotifyCell(board, c1.x, c1.y, kCellMatchIncorrect);
+            NotifyCell(board, c2.x, c2.y, kCellMatchIncorrect);
+            Sleep(300);
             // Sound
         }
 
@@ -434,6 +536,15 @@ void ChooseCell(Board &board, int x, int y) {
         }
 
         delete[] path;
+    }
+
+    // Check if game is finished
+    if (IsGameFinished(board)) {
+        StopGame(board);
+        EraseScreen();
+        Sleep(800L);
+        DrawEndingScoreScreen();
+        return;
     }
 
     // Check if a matching exists
@@ -475,13 +586,16 @@ void GameRemoveCell(Board &board, Cell cell, bool redraw_rows) {
 }
 
 /**
- * Redraw cell after removing in Board.
+ * Redraw cell after removing in Board. The last call.
 */
 void GameRemoveCell(Board &board, Cell cell) {
     GameRemoveCell(board, cell, false);
 }
 
 void MoveToCell(Board &board, int x, int y) {
+    if (board.cur_x != 0 && board.cur_y != 0)
+        NotifyCell(board, board.cur_x, board.cur_y, kCellUnhovering);
+    
     BoardGoToCell(board, x, y);
     GoToCursorPos(x * kCellHeight, y * kCellWidth);
     NotifyCell(board, x, y, kCellHovering);
@@ -504,10 +618,13 @@ void NotifyCell(Board &board, int x, int y, int state) {
    
     switch (state) {
         case kCellChosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundBlue);
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundBlue);
             break;
         case kCellUnchosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
+            if (IsCellEmpty(board, x, y))
+                DrawEmptyCell(Cell(x, y));
+            else
+                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
             if (!ListContains(board.chosen_cells, &cur, pred)) {
@@ -515,12 +632,112 @@ void NotifyCell(Board &board, int x, int y, int state) {
             }
             break;
         case kCellUnhovering:
-            if (!ListContains(board.chosen_cells, &cur, pred)) {
+            if (IsCellEmpty(board, x, y))
+                DrawEmptyCell(Cell(x, y));
+            else if (!ListContains(board.chosen_cells, &cur, pred)) {
                 DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault);
             }
 
             break;
+        case kCellHint:
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundYellow);
+            break;
+        case kCellMatchIncorrect:
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundRed);
+            break;
         default:
             break;
     }
+}
+
+/* Ending Score */
+void DrawEndingScoreScreen() {
+    // TODO Play audio
+    // TODO Draw background
+    int col = 30;
+
+    GoToCursorPos(30, col);
+    auto end = chrono::system_clock::now();
+    int player_time = chrono::duration<double, milli>(end-Game::score).count() / 1000;
+    std::cout << "Finished! You've finished in " << player_time << " seconds!\n"; 
+    GoToCursorPos(31, col);
+    // Make cursor visible
+    std::cout << "\x1b[?25h";
+
+    std::cout << "Enter your name: ";
+    string player_name;
+    std::getline(cin, player_name);
+    while (player_name.size() >= 16) {
+        GoToCursorPos(32, col);
+        std::cout << "Name must be <= 16 characters!\n";
+        GoToCursorPos(31, col + string("Enter your name: ").length());
+        
+        for (int i = 0; i < player_name.size(); ++i) {
+            std::cout << " ";
+        }
+        GoToCursorPos(31, col + string("Enter your name: ").length());
+        getline(cin, player_name);
+    }
+
+    stringstream ss;
+    ss << Game::m << "x" << Game::n;
+    ss << "_";
+    if (!Game::version_linked_list) {
+        ss << "standard";
+    } else {
+        ss << "collapsing";
+    }
+    ss << ".txt";
+    string filename = ss.str();
+
+    ifstream fin(filename.c_str());
+    int lines = 0;
+    string line;
+    while (std::getline(fin, line)) 
+        ++lines;
+    fin.close();
+
+
+    Player *players = new Player[lines + 1];
+    int i = 0;
+    string tmp = "";
+    bool flag = false;
+    
+    fin.open(filename.c_str());
+    while (std::getline(fin, line)) {
+        int p = line.find_last_of('-'); 
+        string cur_name = line.substr(0, p - 1); 
+        int cur_time = stoi(line.substr(p + 1));
+
+        if (cur_time >= player_time && !flag) {
+            players[i++] = Player{player_name, player_time};
+            flag = true;
+        } 
+        players[i++] = Player{cur_name, cur_time};  
+    } 
+    fin.close();
+    if (!flag) {
+        players[i++] = Player{player_name, player_time};
+    }
+
+    if (i > kMaxTop) {
+        --i;
+    }
+
+    ofstream fout(filename.c_str());
+    for (int j = 0; j < i; ++j) {
+        fout << players[j].name << " - " << players[j].score << "\n";
+    }
+    fout.close();
+
+    delete[] players;
+
+    GoToCursorPos(32, col);
+    // erase whole line
+    std::cout << "\x1b[2k";
+    std::cout << "Saved player " << player_name << "!\n";
+    Sleep(800L);
+
+    EraseScreen();
+    // TODO Go To menu
 }

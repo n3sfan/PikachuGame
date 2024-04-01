@@ -43,16 +43,22 @@ Node* RemoveAtPos(List &L, Node *pos, Node *prv) {
     }
 
     L.size--;
+    Node *ret = nullptr;
     if (!prv) { // Remove head
         Node *tmp = L.head;
         L.head = L.head->next;
         delete tmp;
-        return L.head;
+        ret = L.head;
     } else {
         prv->next = pos->next;
         delete pos;
-        return prv->next;
+        ret = prv->next;
     }
+
+    if (!L.head)
+        L.tail = nullptr;
+
+    return ret;
 }
 
 Node* ListGet(List &L, int i) {

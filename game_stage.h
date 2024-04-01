@@ -1,12 +1,21 @@
 #ifndef GAME_GAME_STAGE_H
 #define GAME_GAME_STAGE_H
 
+#include <chrono>
+
 #include "structs.h"
 #include "draw_console.h"
+
+namespace Game {
+    extern chrono::_V2::system_clock::time_point score;
+    extern int m, n;
+}
 
 Board& StartGame(int rows, int columns, bool linked_list);
 
 void StopGame(Board &board);
+
+bool IsGameFinished(Board &board);
 
 void OnKeyPressed(Board &board, char key);
 
@@ -53,6 +62,8 @@ void DrawBoard(Board &board, int x);
 
 void DrawBoard(Board &board);
 
+void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, int h, int w);
+
 /*
 * Draw a row from cell (x, y) at row's cursor pos
 */
@@ -61,7 +72,10 @@ void DrawRow(Board &board, int x, int y);
 void NotifyCell(Board &board, int x, int y, int state);
 
 /**
- * cell's position in console screen => cell's position in board
+ * cell's position in board = > cell's position in console screen
 */
 void CellToPos(const Cell &c, int &x, int &y);
+
+/* Ending Score */
+void DrawEndingScoreScreen();
 #endif // GAME_GAME_STAGE_H 

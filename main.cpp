@@ -1,14 +1,15 @@
 #include <windows.h>
+#include <conio.h>
 
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <fstream>
+
 #include "draw_console.h"
 #include "game_stage.h"
 #include "structs.h"
 #include "board.h"
-#include <conio.h>
-#include <vector>
 #include "leaderboard.h"
 
 using namespace std;
@@ -107,15 +108,15 @@ void printSlowly(const string& text, int delay) {
     }
 }
 
-void menu(){
+void menu() {
     
     GoToCursorPos(y - 12, x - 20);
     cout << SetColor(0, kGreen, 0);
-    DrawBackgroundCell("background2.txt",x - 40, y + 5 );
+    DrawBackgroundCell("background2.txt", y + 5, x - 40);
     cout << SetColor(0, kYellow, 0);
-    DrawBackgroundCell("background6.txt", x + 20, y - 5);
+    DrawBackgroundCell("background6.txt", y - 5, x + 20);
     cout << SetColor(0, kRed, 0);
-    DrawBackgroundCell("background7.txt", x - 20, y - 12);
+    DrawBackgroundCell("background7.txt", y - 12, x - 20);
     cout << "\x1b[?25l";// Xóa nháy chuột
     // setting
     int w = 20;
@@ -180,7 +181,6 @@ void menu(){
         }
         // điều khiển // di chuyển
         if(_kbhit()){
-            
             char c = _getch();
             if(c == '\r'){
                 cout << SetColor(0, kDefault, kBackgroundDefault);
@@ -189,7 +189,7 @@ void menu(){
                         // Vào Game
                         currentScreen = GAME;
                         EraseScreen();
-                        board = &StartGame(4, 6, false);
+                        board = &StartGame(6, 9, true);
                         return;
                         break;
                     case 2:
@@ -268,6 +268,15 @@ int main() {
     // Maximize window
     HWND hWnd = GetConsoleWindow();
     ShowWindow(hWnd, SW_SHOWMAXIMIZED);
+    // Set font size
+    CONSOLE_FONT_INFOEX cfi = {sizeof(cfi)};
+    // Populate cfi with the screen buffer's current font info
+    GetCurrentConsoleFontEx(h_stdout, FALSE, &cfi);
+    // Modify the font size in cfi
+    cfi.dwFontSize.X = 10;
+    cfi.dwFontSize.Y = 20;
+    // Use cfi to set the screen buffer's new font
+    SetCurrentConsoleFontEx(h_stdout, FALSE, &cfi);
 
     EraseScreen();
     GoToCursorPos(0, 0);
@@ -297,16 +306,9 @@ int main() {
                  \_/__/
 )";
     // In ASCII art một cách từ từ với delay là 5 milliseconds
-    printSlowly(asciiArt, 20);
-    Sleep(500);
+    // printSlowly(asciiArt, 20);
+    // Sleep(500);
 
-
-    // vector<Player> leaderboard = readLeaderboard("stage_filename.txt");
-    // DrawStageLeaderboard(leaderboard);
-    // currentScreen = LEADERBOARD;
-    // _getch();
-    // DrawBackgroundCell("background1.txt", 10 , 10);
-    // _getch();
     while(true) {
         if (currentScreen == GAME) {
             OnKeyPressed(*board, GetSpecialChar());
@@ -327,10 +329,6 @@ int main() {
             }
         }
     }
-
-
-    
-
    
     // EraseScreen();
     // GoToCursorPos(0, 0);

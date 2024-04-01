@@ -1,5 +1,7 @@
 #include "structs.h"
 
+#include <random>
+
 #include "linked_list.h"
 
 #ifndef GAME_BOARD_H_
@@ -13,6 +15,8 @@ struct Vertex {
 namespace Game {
     extern bool version_linked_list;
 }
+
+extern mt19937 rng;
 
 /**
  * (rows * columns) must be even. 

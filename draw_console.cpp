@@ -47,6 +47,9 @@ int GetSpecialChar() {
         case kKeyEsc:
             return kKeyEsc;
         default:
+            if ('a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z') 
+                return ch;
+
             return 0;
     }
 }
@@ -67,10 +70,10 @@ void GoToCursorPos(int row, int column) {
 string SetColor(int text_mode, int text, int background) {
     stringstream ss;
     ss << "\x1b[";
+    if (text_mode != 0) {
+        ss << text_mode << ';';
+    }
     if (text != 0) {
-        if (text_mode != 0) {
-            ss << text_mode << ';';
-        }
         ss << text;
         if (background != 0) {
             ss << ';';
@@ -102,7 +105,7 @@ void DrawBackgroundCell(const string& filename, int x, int y) {
     // In ảnh từ vị trí (x, y)
     for (size_t i = 0; i < lines.size(); ++i) {
         // In background tại vị trí x, y
-        GoToCursorPos(y + i, x);
+        GoToCursorPos(x + i, y);
         cout << lines[i] << endl;
         
     }

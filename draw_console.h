@@ -18,9 +18,10 @@ const int kReset = 0;
 
 /* Text mode */
 const int kBold = 1;
-const int kItalic = 2;
-const int kUnderline = 3;
-const int kBlinking = 4;
+const int kDim = 2;
+const int kItalic = 3;
+const int kUnderline = 4;
+const int kBlinking = 5;
 const int kStrikethrough = 9;
 
 const int kBackgroundBlack = 40;

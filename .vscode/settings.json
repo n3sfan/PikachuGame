@@ -9,6 +9,9 @@
         "cstddef": "cpp",
         "iosfwd": "cpp",
         "format": "cpp",
-        "span": "cpp"
+        "span": "cpp",
+        "ratio": "cpp",
+        "*.tcc": "cpp",
+        "fstream": "cpp"
     }
 }
