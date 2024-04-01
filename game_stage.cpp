@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <mmsystem.h>
 
 #include "draw_console.h"
 #include "board.h"
@@ -23,6 +24,22 @@ const int kCellMatchCorrect = 3;
 const int kCellMatchIncorrect = 4;
 const int kCellHint = 6;
 const int kMaxTop = 10;
+void WinSound()
+{
+    PlaySound(TEXT("assets/Winning.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+void CorrectSound()
+{
+    PlaySound(TEXT("assets/Correct.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+void ErrorSound()
+{
+    PlaySound(TEXT("assets/Error.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+void MovingSound()
+{
+    PlaySound(TEXT("assets/Moving.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
 
 namespace Game {
     chrono::_V2::system_clock::time_point score;
@@ -400,6 +417,7 @@ void OnKeyPressed(Board &board, char key) {
         case kKeyDown:
         case kKeyRight:
         case kKeyLeft:
+            MovingSound();
             int x, y;
             FindNextUnmatchedCell(board, last_x, last_y, key, x, y);
             BoardGoToCell(board, x, y);
@@ -466,7 +484,6 @@ void ChooseCell(Board &board, int x, int y) {
 
         bool flag1 = board.GetLetter(c1.x, 2) == ' ';
         bool flag2 = false;
-        
         if (path) {
             // Remove cells in the board first, to avoid moving to deleted cell bug.
             if (!Game::version_linked_list) {
@@ -482,7 +499,7 @@ void ChooseCell(Board &board, int x, int y) {
                 flag2 = board.GetLetter(c2.x, 2) == ' ';
                 BoardRemoveCell(board, c3.x, c3.y);
             }
-
+            CorrectSound();
             DrawMatching(path, n, false);
             Sleep(700);
             DrawMatching(path, n, true);
@@ -500,6 +517,7 @@ void ChooseCell(Board &board, int x, int y) {
             //     }
             // }
         } else {
+            ErrorSound();
             NotifyCell(board, c1.x, c1.y, kCellMatchIncorrect);
             NotifyCell(board, c2.x, c2.y, kCellMatchIncorrect);
             Sleep(300);
@@ -541,6 +559,7 @@ void ChooseCell(Board &board, int x, int y) {
     // Check if game is finished
     if (IsGameFinished(board)) {
         StopGame(board);
+        WinSound();
         EraseScreen();
         Sleep(800L);
         DrawEndingScoreScreen();
