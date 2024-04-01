@@ -27,6 +27,7 @@ const int kMaxTop = 10;
 namespace Game {
     chrono::_V2::system_clock::time_point score;
     int m, n;
+    string background_image;
 }
 
 Board& StartGame(int m, int n, bool linked_list) {
@@ -34,6 +35,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     Game::score = chrono::system_clock::now();
     Game::m = m;
     Game::n = n;
+    Game::background_image = string("background") + to_string(1 + rng()%3) + ".txt";
 
     Board &board = GenerateBoard(m, n, linked_list); 
 
@@ -47,7 +49,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     shuffle(bg_cells, bg_cells + 90*90, rng);
     for (int k = 0; k < 90*90; ++k) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
-        DrawBackgroundCell("background1.txt", i, j, i, j, 1, 1);
+        DrawBackgroundCell(Game::background_image, i, j, i, j, 1, 1);
     }
     DrawBoard(board);
 
@@ -129,40 +131,49 @@ void DrawCell(int x, int y, char c, int char_mode, int char_color, int backgroun
     std::cout << SetColor(kDefault);
 }
 
-void DrawEmptyCell(Cell cell) {
+void DrawEmptyCell(Cell cell, int char_mode, int char_color, int background_color, bool clear) {
     // Draw empty cell and border
     int last_x, last_y; 
     ReturnCursorPos(last_x, last_y);
 
     int x, y;
     CellToPos(cell, x, y);
-    GoToCursorPos(x, y);
-    std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
-    for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << " ";
-    }
-    std::cout << " ";
+    std::cout << SetColor(char_mode, char_color, background_color);
 
-    for (int i = 1; i < kCellHeight - 1; ++i) {
-        GoToCursorPos(x + i, y);
+    if (clear) { 
+        GoToCursorPos(x, y);
         std::cout << " ";
-        for (int j = 1; j < kCellWidth - 1; ++j) {
+        for (int i = 1; i < kCellWidth - 1; ++i) {
             std::cout << " ";
         }
         std::cout << " ";
     }
 
-    GoToCursorPos(x + kCellHeight - 1, y);
-    std::cout << " ";
-    for (int i = 1; i < kCellWidth - 1; ++i) {
-        std::cout << " "; 
+    for (int i = 1; i < kCellHeight - 1; ++i) {
+        GoToCursorPos(x + i, y);
+        if (clear) 
+            std::cout << " ";
+        for (int j = 1; j < kCellWidth - 1; ++j) {
+            std::cout << " ";
+        }
+        if (clear)
+            std::cout << " ";
     }
-    std::cout << " ";
+
+    if (clear) {
+        GoToCursorPos(x + kCellHeight - 1, y);
+        std::cout << " ";
+        for (int i = 1; i < kCellWidth - 1; ++i) {
+            std::cout << " "; 
+        }
+        std::cout << " ";
+    }
 
     if (cell.x >= 1 && cell.y >= 1)
-        DrawBackgroundCell("background1.txt", x, y, x, y, kCellHeight, kCellWidth);
+        DrawBackgroundCell(Game::background_image, x, y, x, y, kCellHeight, kCellWidth);
     // Reset to original pos
     GoToCursorPos(last_x, last_y);
+    cout << SetColor(0, kDefault, kBackgroundDefault);
 }
 
 void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, int h, int w) {
@@ -268,8 +279,44 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
         int d = (key_pressed == kKeyDown ? 1 : -1);
         bool cycled = false;
 
+        // if (x + d < 1) {
+        //     next_x = board.m - 2;
+        // } else if (x + d >= board.m - 1) {
+        //     next_x = 1;
+        // } else {
+        //     next_x = x + d;
+        // }
+        // next_y = y;
+
         // This loop runs once in LL.
         // prioritize searching original direction first
+        // for (int tx = x + d; ; tx += d) {
+        //     // border cell
+        //     if (tx == 0 || tx == board.GetGameRows() - 1) {
+        //         if (cycled)
+        //             break;
+
+        //         cycled = true;
+        //         if (tx == 0)
+        //             tx = board.GetGameRows() - 2;
+        //         else   
+        //             tx = 1;
+        //     }
+
+        //     int d2 = 0;
+        //     int n = board.GetGameRowSize(x);
+        //     if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
+        //         next_x = tx;
+        //         next_y = y - d2;
+        //         return;
+        //     }
+        //     if (y + d2 <= n - 1 && !IsCellEmpty(board, tx, y + d2)) {
+        //         next_x = tx;
+        //         next_y = y + d2;
+        //         return;
+        //     }
+        // }
+        // Not run in LL.
         for (int tx = x + d; ; tx += d) {
             // border cell
             if (tx == 0 || tx == board.GetGameRows() - 1) {
@@ -285,34 +332,7 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
 
             int d2 = 0;
             int n = board.GetGameRowSize(x);
-            if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
-                next_x = tx;
-                next_y = y - d2;
-                return;
-            }
-            if (y + d2 <= n - 1 && !IsCellEmpty(board, tx, y + d2)) {
-                next_x = tx;
-                next_y = y + d2;
-                return;
-            }
-        }
-        // Not run in LL.
-        for (int tx = x + d; ; tx += d) {
-            // border cell
-            if (tx == 0 || tx == board.GetGameRows() - 1) {
-                if (cycled)
-                    break;
-
-                cycled = true;
-                if (tx == 0)
-                    tx = board.GetGameRows() - 2;
-                else   
-                    tx = 1;
-            }
-
-            int d2 = 1;
-            int n = board.GetGameRowSize(x);
-            while (1 <= y - d2 || y + d2 <= n - 1) {
+            while (1 <= y - d2 || y + d2 < n - 1) {
                 if (1 <= y - d2 && !IsCellEmpty(board, tx, y - d2)) {
                     next_x = tx;
                     next_y = y - d2;
@@ -330,33 +350,41 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
         int d = (key_pressed == kKeyRight ? 1 : -1);
         bool cycled = false;
 
+        // next_x = x;
+        // if (y + d < 1) {
+        //     next_y = board.m - 2;
+        // } else if (y + d >= board.m - 1) {
+        //     next_y = 1;
+        // } else {
+        //     next_y = y + d;
+        // }
         // prioritize searching original direction first
-        for (int ty = y + d; ; ty += d) {
-            int n = board.GetGameRowSize(x);
-            // border cell
-            if (ty == 0 || ty == n - 1) {
-                if (cycled)
-                    break;
+        // for (int ty = y + d; ; ty += d) {
+        //     int n = board.GetGameRowSize(x);
+        //     // border cell
+        //     if (ty == 0 || ty == n - 1) {
+        //         if (cycled)
+        //             break;
 
-                cycled = true;
-                if (ty == 0)
-                    ty = n - 2;
-                else   
-                    ty = 1;
-            }
+        //         cycled = true;
+        //         if (ty == 0)
+        //             ty = n - 2;
+        //         else   
+        //             ty = 1;
+        //     }
 
-            int d2 = 0;
-            if (1 <= x - d2 && !IsCellEmpty(board, x - d2, ty)) {
-                next_x = x - d2;
-                next_y = ty;
-                return; 
-            }
-            if (x + d2 <= board.m - 1 && !IsCellEmpty(board, x + d2, ty)) {
-                next_x = x + d2;
-                next_y = ty;
-                return;
-            }
-        }
+        //     int d2 = 0;
+        //     if (1 <= x - d2 && !IsCellEmpty(board, x - d2, ty)) {
+        //         next_x = x - d2;
+        //         next_y = ty;
+        //         return; 
+        //     }
+        //     if (x + d2 <= board.m - 1 && !IsCellEmpty(board, x + d2, ty)) {
+        //         next_x = x + d2;
+        //         next_y = ty;
+        //         return;
+        //     }
+        // }
         
         for (int ty = y + d; ; ty += d) {
             int n = board.GetGameRowSize(x);
@@ -374,7 +402,7 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
 
             int d2 = 0;
             // This loop runs once in LL.
-            while (1 <= x - d2 || x + d2 <= board.m - 1) {
+            while (1 <= x - d2 || x + d2 < board.m - 1) {
                 if (1 <= x - d2 && !IsCellEmpty(board, x - d2, ty)) {
                     next_x = x - d2;
                     next_y = ty;
@@ -449,7 +477,7 @@ void ChooseCell(Board &board, int x, int y) {
     // if (board.chosen_cells.size == 2 || ListContains(board.chosen_cells, &tmp, pred))
     //     return;
 
-    if (board.chosen_cells.size < 2) {
+    if (board.chosen_cells.size < 2 && !IsCellEmpty(board, x, y)) {
         AddChosenCell(board, x, y);
         NotifyCell(board, x, y, kCellChosen);
     }
@@ -627,7 +655,9 @@ void NotifyCell(Board &board, int x, int y, int state) {
                 DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
-            if (!ListContains(board.chosen_cells, &cur, pred)) {
+            if (IsCellEmpty(board, x, y))
+                DrawEmptyCell(Cell(x, y), 0, kDefault, kBackgroundGreen, false);
+            else if (!ListContains(board.chosen_cells, &cur, pred)) {
                 DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundGreen);
             }
             break;

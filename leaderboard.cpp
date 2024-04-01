@@ -44,7 +44,7 @@ vector<Player> readLeaderboard(const string& filename) {
     }
     file.close();
     // Sắp xếp leaderboard theo điểm số giảm dần
-    sort(leaderboard.begin(), leaderboard.end(), comparePlayers);
+    // sort(leaderboard.begin(), leaderboard.end(), comparePlayers);
     return leaderboard;
 }
 

@@ -9,6 +9,7 @@
 namespace Game {
     extern chrono::_V2::system_clock::time_point score;
     extern int m, n;
+    extern string background;
 }
 
 Board& StartGame(int rows, int columns, bool linked_list);
@@ -37,7 +38,7 @@ void GameRemoveCell(Board &board, Cell cell);
 */
 void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault);
 
-void DrawEmptyCell(Cell c);
+void DrawEmptyCell(Cell c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault, bool clear = true);
 
 /**
  * Draw a cell from background text file.

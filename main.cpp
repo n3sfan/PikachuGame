@@ -114,7 +114,7 @@ void PrintSlowly(const string& text, int delay) {
     }
 }
 
-void MenuSizeStandard(){
+void MenuSizeStandard() {
     GoToCursorPos(y - 12, x - 20);
     cout << SetColor(0, kGreen, 0);
     DrawBackgroundCell("background2.txt", x - 40, y + 5);
@@ -131,7 +131,7 @@ void MenuSizeStandard(){
     int b_color_sang = kBackgroundRed;
     string nd = "3 x 4";
     string nd2 = "4 x 6";
-    string nd3 = "8 x 10"; 
+    string nd3 = "7 x 10"; 
     int sl = 3;
     // Print menu 
     cout << SetColor(0, 0, kBackgroundWhite);
@@ -189,7 +189,7 @@ void MenuSizeStandard(){
                 switch (index){
                     case 1:
                         // Go to 3 x 4 Standard
-                        if(Screen == SCREEN_OF_GAME){
+                        if(Screen == SCREEN_OF_GAME){ 
                             currentScreen = GAME;
                             EraseScreen();
                             board = &StartGame(3, 4, false);
@@ -219,11 +219,11 @@ void MenuSizeStandard(){
                             break;
                         }
                     case 3:
-                        // Go to 8 x 10 Standard
+                        // Go to 7 x 10 Standard
                         if(Screen == SCREEN_OF_GAME){
                             currentScreen = GAME;
                             EraseScreen();
-                            board = &StartGame(8, 10, false);
+                            board = &StartGame(7, 10, false);
                             return;
                             break;
                         }else{
@@ -292,7 +292,7 @@ void MenuSizeCollapsing(){
     int b_color_sang = kBackgroundRed;
     string nd = "3 x 4";
     string nd2 = "4 x 6";
-    string nd3 = "8 x 10"; 
+    string nd3 = "7 x 10"; 
     int sl = 3;
     // Print menu  
     cout << SetColor(0, 0, kBackgroundWhite);
@@ -380,11 +380,11 @@ void MenuSizeCollapsing(){
                             break;
                         }
                     case 3:
-                        // Go to 8 x 10 Standard
+                        // Go to 7 x 10 Standard
                         if(Screen == SCREEN_OF_GAME){
                             currentScreen = GAME;
                             EraseScreen();
-                            board = &StartGame(8, 10, true);
+                            board = &StartGame(7, 10, true);
                             return;
                             break;
                         }else{
@@ -778,6 +778,9 @@ int main() {
         } else {
             EraseScreen();
             Menu();
+            if (currentScreen == GAME)
+                continue;
+
             char input = _getch();
             if(input == kKeyEsc){
                 if (currentScreen == LEADERBOARD){

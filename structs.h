@@ -98,11 +98,6 @@ struct BoardLL: Board {
     ~BoardLL();
 };
 
-struct Account {
-    string username;
-    string password;
-};
-
 // struct GameStage {
 //     Account user;
 //     Board board;
