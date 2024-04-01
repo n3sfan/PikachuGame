@@ -823,8 +823,10 @@ int main() {
     while(true) {
         if (currentScreen == GAME) {
             OnKeyPressed(*board, GetSpecialChar());
+            GameSound();
         } else {
             EraseScreen();
+            MenuSound();
             Menu();
             char input = _getch();
             if(input == kKeyEsc){

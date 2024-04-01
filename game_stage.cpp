@@ -40,6 +40,14 @@ void MovingSound()
 {
     PlaySound(TEXT("assets/Moving.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
+void MenuSound()
+{
+    PlaySound(TEXT("assets/Menu.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
+void GameSound()
+{
+    PlaySound(TEXT("assets/Game.wav"), NULL, SND_FILENAME | SND_ASYNC);
+}
 
 namespace Game {
     chrono::_V2::system_clock::time_point score;
