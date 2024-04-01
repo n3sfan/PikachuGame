@@ -46,6 +46,8 @@ void setTextColor(int color) {
 }
 
 void Menu();
+void MenuLevel();
+
 
 // Function to clear previous output by filling with spaces
 void ClearPreviousOutput(int startX, int startY, int width, int height) {
@@ -131,8 +133,9 @@ void MenuSizeStandard() {
     int b_color_sang = kBackgroundRed;
     string nd = "3 x 4";
     string nd2 = "4 x 6";
-    string nd3 = "7 x 10"; 
-    int sl = 3;
+    string nd3 = "7 x 10";
+    string nd4 = "Back"; 
+    int sl = 4;
     // Print menu 
     cout << SetColor(0, 0, kBackgroundWhite);
     Box( x, y, w, h, t_color, b_color, nd);
@@ -142,6 +145,9 @@ void MenuSizeStandard() {
     Box( x, y + 4, w, h, t_color, b_color, nd3);
     GoToCursorPos(y + 4, x); cout << char(195);
     GoToCursorPos(y + 4, x + 20); cout << char(180);
+    Box( x, y + 6, w, h, t_color, b_color, nd4);
+    GoToCursorPos(y + 6, x); cout << char(195);
+    GoToCursorPos(y + 6, x + 20); cout << char(180);
     // Bright bar animation
     Brigth_Bar(x, y, w, h, b_color_sang, nd);
     int xp = x; int yp = y; // Bright bar coordinates
@@ -165,6 +171,9 @@ void MenuSizeStandard() {
                 case 3: 
                     Brigth_Bar(xcu, ycu, w, h, b_color, nd3);
                     break;
+                case 4:
+                    Brigth_Bar(xcu, ycu, w, h , b_color, nd4);
+                    break;
             } 
             xcu = xp; ycu = yp;
             // ---------
@@ -177,6 +186,9 @@ void MenuSizeStandard() {
                     break;
                 case 3: 
                     Brigth_Bar(xp, yp, w, h, b_color_sang, nd3);
+                    break;
+                case 4:
+                    Brigth_Bar(xp, yp, w, h , b_color_sang, nd4);
                     break;
             }
             kt = false;
@@ -233,6 +245,13 @@ void MenuSizeStandard() {
                             return;
                             break;
                         }
+                    case 4:
+                        // Back to screen MENULEVEL
+                        currentScreen = MENULEVEL;
+                        EraseScreen();
+                        MenuLevel();
+                        return;
+                        break;
                 }
             }else if(c == -32){
                 kt = true;
@@ -240,17 +259,20 @@ void MenuSizeStandard() {
                 if(c == kKeyUp){ // Press the up arrow key
                     if(yp != y)
                         yp -= 2;
-                        if(yp == y + 2){
+                        if(yp == y + 4){
+                            index = 3;
+                            indexcu = 4;
+                        }else if(yp == y + 2){
                             index = 2;
                             indexcu = 3;
                         }else if(yp == y){
                             index = 1;
                             indexcu = 2;
-                        }      
+                        }
                     else 
                     {
-                        yp = y + h*(sl -1);
-                        index = 3;
+                        yp = y + h*(sl - 1);
+                        index = 4;
                         indexcu = 1;
                     }
                 }else if(c == kKeyDown ){ // Press the down arrow key
@@ -262,13 +284,16 @@ void MenuSizeStandard() {
                         }else if(yp == y + 4){
                             index = 3;
                             indexcu = 2;
+                        }else if(yp == y + 6){
+                            index = 4;
+                            indexcu = 3;
                         }
                             
                     else 
                     {
                         yp = y;
                         index = 1;
-                        indexcu = 3;
+                        indexcu = 4;
                     }
                 }
             }
@@ -293,7 +318,8 @@ void MenuSizeCollapsing(){
     string nd = "3 x 4";
     string nd2 = "4 x 6";
     string nd3 = "7 x 10"; 
-    int sl = 3;
+    string nd4 = "Back";
+    int sl = 4;
     // Print menu  
     cout << SetColor(0, 0, kBackgroundWhite);
     Box( x, y, w, h, t_color, b_color, nd);
@@ -303,6 +329,9 @@ void MenuSizeCollapsing(){
     Box( x, y + 4, w, h, t_color, b_color, nd3);
     GoToCursorPos(y + 4, x); cout << char(195);
     GoToCursorPos(y + 4, x + 20); cout << char(180);
+    Box( x, y + 6, w, h, t_color, b_color, nd4);
+    GoToCursorPos(y + 6, x); cout << char(195);
+    GoToCursorPos(y + 6, x + 20); cout << char(180);
     // Bright bar animation
     Brigth_Bar(x, y, w, h, b_color_sang, nd);
     int xp = x; int yp = y; // Bright bar coordinates
@@ -326,6 +355,9 @@ void MenuSizeCollapsing(){
                 case 3: 
                     Brigth_Bar(xcu, ycu, w, h, b_color, nd3);
                     break;
+                case 4:
+                    Brigth_Bar(xcu, ycu, w, h , b_color, nd4);
+                    break;
             } 
             xcu = xp; ycu = yp;
             // ---------
@@ -338,6 +370,9 @@ void MenuSizeCollapsing(){
                     break;
                 case 3: 
                     Brigth_Bar(xp, yp, w, h, b_color_sang, nd3);
+                    break;
+                case 4:
+                    Brigth_Bar(xp, yp, w, h , b_color_sang, nd4);
                     break;
             }
             kt = false;
@@ -394,6 +429,13 @@ void MenuSizeCollapsing(){
                             return;
                             break;
                         }
+                    case 4:
+                        // Back to screen MENULEVEL
+                        currentScreen = MENULEVEL;
+                        EraseScreen();
+                        MenuLevel();
+                        return;
+                        break;
                 }
             }else if(c == -32){
                 kt = true;
@@ -401,17 +443,20 @@ void MenuSizeCollapsing(){
                 if(c == kKeyUp){ // Press the up arrow key
                     if(yp != y)
                         yp -= 2;
-                        if(yp == y + 2){
+                        if(yp == y + 4){
+                            index = 3;
+                            indexcu = 4;
+                        }else if(yp == y + 2){
                             index = 2;
                             indexcu = 3;
                         }else if(yp == y){
                             index = 1;
                             indexcu = 2;
-                        }      
+                        }
                     else 
                     {
-                        yp = y + h*(sl -1);
-                        index = 3;
+                        yp = y + h*(sl - 1);
+                        index = 4;
                         indexcu = 1;
                     }
                 }else if(c == kKeyDown ){ // Press the down arrow key
@@ -423,13 +468,16 @@ void MenuSizeCollapsing(){
                         }else if(yp == y + 4){
                             index = 3;
                             indexcu = 2;
+                        }else if(yp == y + 6){
+                            index = 4;
+                            indexcu = 3;
                         }
                             
                     else 
                     {
                         yp = y;
                         index = 1;
-                        indexcu = 3;
+                        indexcu = 4;
                     }
                 }
             }
@@ -453,7 +501,7 @@ void MenuLevel(){
     int b_color_sang = kBackgroundRed;
     string nd = "Standard";
     string nd2 = "Collapsing";
-    string nd3 = "Quit"; 
+    string nd3 = "Back"; 
     int sl = 3;
     // Print menu
     cout << SetColor(0, 0, kBackgroundWhite);
@@ -775,8 +823,10 @@ int main() {
     while(true) {
         if (currentScreen == GAME) {
             OnKeyPressed(*board, GetSpecialChar());
+            GameSound();
         } else {
             EraseScreen();
+            MenuSound();
             Menu();
             if (currentScreen == GAME)
                 continue;

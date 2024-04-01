@@ -12,6 +12,7 @@ namespace Game {
     extern string background;
 }
 
+
 Board& StartGame(int rows, int columns, bool linked_list);
 
 void StopGame(Board &board);
@@ -25,6 +26,10 @@ void MoveToCell(Board &board, int x, int y);
 void ChooseCell(Board &board, int x, int y);
 
 void GameRemoveCell(Board &board, Cell cell, bool redraw_rows);
+
+void MenuSound();
+
+void GameSound();
 /**
  * Is called when Player creates a matching, remove the cells.
 */
