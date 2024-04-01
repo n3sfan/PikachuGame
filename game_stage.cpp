@@ -13,6 +13,7 @@
 
 #include "draw_console.h"
 #include "board.h"
+#include "menu.h"
 
 using namespace std;
 
@@ -804,8 +805,10 @@ void DrawEndingScoreScreen() {
     // erase whole line
     std::cout << "\x1b[2k";
     std::cout << "Saved player " << player_name << "!\n";
+    GoToCursorPos(33, col);
+    std::cout << "Quitting...";
     Sleep(800L);
-
+    
     EraseScreen();
-    // TODO Go To menu
+    currentScreen = MENU;
 }

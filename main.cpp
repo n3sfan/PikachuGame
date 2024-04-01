@@ -11,21 +11,10 @@
 #include "structs.h"
 #include "board.h"
 #include "leaderboard.h"
+#include "menu.h"
 
 using namespace std;
 int x = 50; int y = 15;
-
-enum ScreenState {
-    MENU,
-    GAME,
-    LEADERBOARD,
-    MENULEVEL,
-    MENUSIZE
-};
-enum ScreenCurrent{
-    SCREEN_OF_GAME,
-    SCREEN_OF_LEADERBOARD
-};
 
 /// Global variable to store the current screen state
 ScreenState currentScreen = MENU;
@@ -44,10 +33,6 @@ void setTextColor(int color) {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     SetConsoleTextAttribute(hConsole, static_cast<int>(color));
 }
-
-void Menu();
-void MenuLevel();
-
 
 // Function to clear previous output by filling with spaces
 void ClearPreviousOutput(int startX, int startY, int width, int height) {
