@@ -5,7 +5,7 @@
 #include "draw_console.h"
 #include <vector> 
 
-void DrawStageLeaderboard();
+void DrawStageLeaderboard(string filename);
 
 void Leaderboard(const vector<Player>& leaderboard);
 

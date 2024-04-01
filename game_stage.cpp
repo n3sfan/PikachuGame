@@ -24,6 +24,7 @@ const int kCellMatchCorrect = 3;
 const int kCellMatchIncorrect = 4;
 const int kCellHint = 6;
 const int kMaxTop = 10;
+
 void WinSound()
 {
     PlaySound(TEXT("assets/Winning.wav"), NULL, SND_FILENAME | SND_ASYNC);
@@ -50,14 +51,14 @@ void GameSound()
 }
 
 namespace Game {
-    chrono::_V2::system_clock::time_point score;
+    chrono::_V2::system_clock::time_point begin_time, begin_music_time;
     int m, n;
     string background_image;
 }
 
 Board& StartGame(int m, int n, bool linked_list) {
     Game::version_linked_list = linked_list;
-    Game::score = chrono::system_clock::now();
+    Game::begin_time = Game::begin_music_time = chrono::system_clock::now();
     Game::m = m;
     Game::n = n;
     Game::background_image = string("background") + to_string(1 + rng()%3) + ".txt";
@@ -77,6 +78,7 @@ Board& StartGame(int m, int n, bool linked_list) {
         DrawBackgroundCell(Game::background_image, i, j, i, j, 1, 1);
     }
     DrawBoard(board);
+    GameSound();
 
     MoveToCell(board, 1, 1);
 
@@ -444,6 +446,15 @@ void FindNextUnmatchedCell(Board &board, int x, int y, int key_pressed, int &nex
     }
 }
 
+void OnGameUpdate(Board &board) {
+    int elapsed_time = std::chrono::duration<double, std::milli>(chrono::system_clock::now() - Game::begin_music_time).count() / 1000;
+    if (elapsed_time / 60 >= 1) {
+        Game::begin_music_time = chrono::system_clock::now();
+        // replay sound
+        GameSound();
+    }
+}
+
 void OnKeyPressed(Board &board, char key) {
     int last_x = board.cur_x, last_y = board.cur_y;
     Cell c1, c2;
@@ -715,7 +726,7 @@ void DrawEndingScoreScreen() {
 
     GoToCursorPos(30, col);
     auto end = chrono::system_clock::now();
-    int player_time = chrono::duration<double, milli>(end-Game::score).count() / 1000;
+    int player_time = std::chrono::duration<double, milli>(end-Game::begin_time).count() / 1000;
     std::cout << "Finished! You've finished in " << player_time << " seconds!\n"; 
     GoToCursorPos(31, col);
     // Make cursor visible

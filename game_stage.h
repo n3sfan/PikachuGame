@@ -7,7 +7,7 @@
 #include "draw_console.h"
 
 namespace Game {
-    extern chrono::_V2::system_clock::time_point score;
+    extern chrono::_V2::system_clock::time_point begin_time, begin_music_time;
     extern int m, n;
     extern string background;
 }
@@ -18,6 +18,8 @@ Board& StartGame(int rows, int columns, bool linked_list);
 void StopGame(Board &board);
 
 bool IsGameFinished(Board &board);
+
+void OnGameUpdate(Board &board);
 
 void OnKeyPressed(Board &board, char key);
 

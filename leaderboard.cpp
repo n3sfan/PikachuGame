@@ -32,19 +32,19 @@ vector<Player> readLeaderboard(const string& filename) {
     ifstream file(filename);
     vector<Player> leaderboard;
 
-    string line;
-    while (getline(file, line)) {
-        string::size_type pos = line.find('-'); // Tìm vị trí của dấu '-'
-        if (pos != string::npos) { // Nếu tìm thấy dấu '-'
-            string name = line.substr(0, pos); // Lấy phần tên từ đầu đến trước dấu '-'
-            string scoreString = line.substr(pos + 1); // Lấy phần điểm từ sau dấu '-'
-            int score = stoi(scoreString); // Chuyển đổi phần điểm thành số nguyên
-            leaderboard.push_back({name, score}); // Thêm vào leaderboard
+    if (file.good()) {
+        string line;
+        while (getline(file, line)) {
+            string::size_type pos = line.find('-'); // Tìm vị trí của dấu '-'
+            if (pos != string::npos) { // Nếu tìm thấy dấu '-'
+                string name = line.substr(0, pos); // Lấy phần tên từ đầu đến trước dấu '-'
+                string scoreString = line.substr(pos + 1); // Lấy phần điểm từ sau dấu '-'
+                int score = stoi(scoreString); // Chuyển đổi phần điểm thành số nguyên
+                leaderboard.push_back({name, score}); // Thêm vào leaderboard
+            }
         }
+        file.close();
     }
-    file.close();
-    // Sắp xếp leaderboard theo điểm số giảm dần
-    // sort(leaderboard.begin(), leaderboard.end(), comparePlayers);
     return leaderboard;
 }
 
@@ -70,7 +70,7 @@ void Leaderboard(const vector<Player>& leaderboard) {
     cout << "\tPress Esc to return to main menu...\n";
 }
 // Vẽ leaderboard
-void DrawStageLeaderboard(){
-    vector<Player> leaderboard = readLeaderboard("stage_filename.txt");
+void DrawStageLeaderboard(string filename) {
+    vector<Player> leaderboard = readLeaderboard(filename);
     Leaderboard(leaderboard);
 }

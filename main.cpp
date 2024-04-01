@@ -210,7 +210,7 @@ void MenuSizeStandard() {
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("3x4_standard.txt");
                             return;
                             break;
                         }
@@ -226,7 +226,7 @@ void MenuSizeStandard() {
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("4x6_standard.txt");
                             return;
                             break;
                         }
@@ -241,7 +241,7 @@ void MenuSizeStandard() {
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("7x10_standard.txt");
                             return;
                             break;
                         }
@@ -394,7 +394,7 @@ void MenuSizeCollapsing(){
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("3x4_collapsing.txt");
                             return;
                             break;
                         }
@@ -410,7 +410,7 @@ void MenuSizeCollapsing(){
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("4x6_collapsing.txt");
                             return;
                             break;
                         }
@@ -425,7 +425,7 @@ void MenuSizeCollapsing(){
                         }else{
                             currentScreen = LEADERBOARD;
                             EraseScreen();
-                            DrawStageLeaderboard();
+                            DrawStageLeaderboard("7x10_collapsing.txt");
                             return;
                             break;
                         }
@@ -822,8 +822,8 @@ int main() {
 
     while(true) {
         if (currentScreen == GAME) {
+            OnGameUpdate(*board);
             OnKeyPressed(*board, GetSpecialChar());
-            GameSound();
         } else {
             EraseScreen();
             MenuSound();
