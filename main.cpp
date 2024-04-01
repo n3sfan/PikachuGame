@@ -117,11 +117,11 @@ void PrintSlowly(const string& text, int delay) {
 void MenuSizeStandard(){
     GoToCursorPos(y - 12, x - 20);
     cout << SetColor(0, kGreen, 0);
-    DrawBackgroundCell("background2.txt", y + 5, x - 40);
+    DrawBackgroundCell("background2.txt", x - 40, y + 5);
     cout << SetColor(0, kYellow, 0);
-    DrawBackgroundCell("background6.txt", y - 5, x + 20);
+    DrawBackgroundCell("background6.txt", x + 20, y - 5);
     cout << SetColor(0, kRed, 0);
-    DrawBackgroundCell("background7.txt", y - 12, x - 20);
+    DrawBackgroundCell("background7.txt", x - 20, y - 12);
     cout << "\x1b[?25l";// Xóa nháy chuột
     // setting
     int w = 20;
@@ -574,7 +574,7 @@ void MenuLevel(){
 void Menu(){
     GoToCursorPos(y - 12, x - 20);
     cout << SetColor(0, kGreen, 0);
-    DrawBackgroundCell("background2.txt",x - 40, y + 5 );
+    DrawBackgroundCell("background2.txt", x - 40, y + 5);
     cout << SetColor(0, kYellow, 0);
     DrawBackgroundCell("background6.txt", x + 20, y - 5);
     cout << SetColor(0, kRed, 0);
@@ -770,7 +770,7 @@ int main() {
 )";
     // In ASCII art một cách từ từ với delay là 5 milliseconds
     PrintSlowly(asciiArt, 20);
-    Sleep(1000);
+    Sleep(800);
 
     while(true) {
         if (currentScreen == GAME) {

@@ -230,9 +230,9 @@ void DrawMatching(const Cell *path, int n, bool clear) {
             // Do not print on last character of last cell on path
             if (!(i == n - 2 && x == x2 + kCellHeight / 2 && y == y2 + kCellWidth / 2)) {
                 if (clear) {
-                    std::cout << " ";
+                    std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
                 } else {
-                    std::cout << SetColor(0, kGreen, kBackgroundDefault);
+                    std::cout << SetColor(0, kGreen, kBackgroundDefault) << "#";
                 }
             }
         }
@@ -618,13 +618,13 @@ void NotifyCell(Board &board, int x, int y, int state) {
    
     switch (state) {
         case kCellChosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kYellow , kDefault, kBackgroundRed);
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kYellow, kDefault, kBackgroundRed);
             break;
         case kCellUnchosen:
             if (IsCellEmpty(board, x, y))
                 DrawEmptyCell(Cell(x, y));
             else 
-                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kBold , kBackgroundDefault); 
+                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
             if (!ListContains(board.chosen_cells, &cur, pred)) {
@@ -643,7 +643,7 @@ void NotifyCell(Board &board, int x, int y, int state) {
             DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundYellow);
             break;
         case kCellMatchIncorrect:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundRed);
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBlinking, kDefault, kBackgroundDefault);
             break;
         default:
             break;

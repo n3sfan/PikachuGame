@@ -10,7 +10,7 @@
                 "-std=c++17",
                 // "${file}",
                 "*.cpp",
-                "-l Winmm",
+                "-lWinmm",
                 "-o",
                 "${fileDirname}\\main.exe"
             ],
