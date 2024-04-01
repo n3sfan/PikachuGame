@@ -232,7 +232,7 @@ void DrawMatching(const Cell *path, int n, bool clear) {
                 if (clear) {
                     std::cout << " ";
                 } else {
-                    std::cout << ("#");
+                    std::cout << SetColor(0, kGreen, kBackgroundDefault);
                 }
             }
         }
@@ -618,13 +618,13 @@ void NotifyCell(Board &board, int x, int y, int state) {
    
     switch (state) {
         case kCellChosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundBlue);
+            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kYellow , kDefault, kBackgroundRed);
             break;
         case kCellUnchosen:
             if (IsCellEmpty(board, x, y))
                 DrawEmptyCell(Cell(x, y));
-            else
-                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
+            else 
+                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kBold , kBackgroundDefault); 
             break;
         case kCellHovering:
             if (!ListContains(board.chosen_cells, &cur, pred)) {
