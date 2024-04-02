@@ -9,6 +9,9 @@
 #include <sstream>
 #include <string>
 #include <algorithm>
+#include <thread>
+#include <chrono>
+
 #include <mmsystem.h>
 
 #include "draw_console.h"
@@ -109,6 +112,8 @@ Board& StartGame(int m, int n, bool linked_list) {
 
 void StopGame(Board &board) {
     DeleteBoard(board);
+    EraseScreen();
+    currentScreen = MENU;
 }
 
 bool IsGameFinished(Board &board) {
@@ -135,7 +140,7 @@ void DrawCell(int x, int y, char c, int char_mode, int char_color, int backgroun
      for (int i = 1; i < kCellHeight - 1; ++i) {
         GoToCursorPos(x + i, y);
         std::cout << (char)179;
-        cout << SetColor(0, 0, background_color);
+        std::cout << SetColor(0, 0, background_color);
         for (int j = 1; j < kCellWidth - 1; ++j) {
             if (i == (kCellHeight - 1) / 2 && j == (kCellWidth - 1) / 2) {
                 std::cout << SetColor(0, char_mode, background_color) << c << SetColor(char_mode, kDefault, 0);
@@ -271,7 +276,16 @@ void DrawMatching(const Cell *path, int n, bool clear) {
                 if (clear) {
                     std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
                 } else {
-                    std::cout << SetColor(0, kGreen, kBackgroundDefault) << "#";
+                    std::cout << SetColor(kBold, kGreen, kBackgroundDefault);
+                    if (hori) {
+                        if (path[i].y < path[i + 1].y) {
+                            std::cout << (char)175;
+                        } else {
+                            std::cout << (char)174;
+                        }
+                    } else {
+                        std::cout << "|";
+                    }
                 }
             }
         }
@@ -296,7 +310,10 @@ void DrawRow(Board &board, int x, int y) {
             //GameRemoveCell(board, Cell(x, j));
             DrawEmptyCell(Cell(x, j));
         } else {
-            DrawCell(x * kCellHeight, j * kCellWidth, board.GetLetter(x, j), kBold, kDefault);
+            Cell c(x, j);
+            int cx, cy;
+            CellToPos(c, cx, cy);
+            DrawCell(cx, cy, board.GetLetter(x, j), kBold, kDefault);
         }
     }
 }
@@ -549,7 +566,7 @@ void ChooseCell(Board &board, int x, int y) {
             }
             CorrectSound();
             DrawMatching(path, n, false);
-            Sleep(700);
+            std::this_thread::sleep_for(std::chrono::milliseconds(700));
             DrawMatching(path, n, true);
 
             // int next_x, next_y;
@@ -568,7 +585,7 @@ void ChooseCell(Board &board, int x, int y) {
             ErrorSound();
             NotifyCell(board, c1.x, c1.y, kCellMatchIncorrect);
             NotifyCell(board, c2.x, c2.y, kCellMatchIncorrect);
-            Sleep(300);
+            std::this_thread::sleep_for(std::chrono::milliseconds(300));
             // Sound
         }
 
@@ -606,11 +623,10 @@ void ChooseCell(Board &board, int x, int y) {
 
     // Check if game is finished
     if (IsGameFinished(board)) {
-        StopGame(board);
         WinSound();
         EraseScreen();
-        Sleep(800L);
-        DrawEndingScoreScreen();
+        std::this_thread::sleep_for(std::chrono::milliseconds(800));
+        DrawEndingScoreScreen(board);
         return;
     }
 
@@ -664,13 +680,15 @@ void MoveToCell(Board &board, int x, int y) {
         NotifyCell(board, board.cur_x, board.cur_y, kCellUnhovering);
     
     BoardGoToCell(board, x, y);
-    GoToCursorPos(x * kCellHeight, y * kCellWidth);
+    int cx, cy;
+    CellToPos(Cell(x, y), cx, cy);
+    GoToCursorPos(cx, cy);
     NotifyCell(board, x, y, kCellHovering);
 }
 
 void CellToPos(const Cell &c, int &x, int &y) {
-    x = c.x * kCellHeight;
-    y = c.y * kCellWidth;
+    x = c.x * kCellHeight + 3;
+    y = c.y * kCellWidth + 5;
 }
 
 /**
@@ -682,37 +700,39 @@ void NotifyCell(Board &board, int x, int y, int state) {
     bool (*pred)(void*, void*) = [](void *element, void *value) -> bool {
         return *((Cell*) element) == *((Cell*) value);
     };
+    int cx, cy;
+    CellToPos(cur, cx, cy);
    
     switch (state) {
         case kCellChosen:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kYellow, kDefault, kBackgroundRed);
+            DrawCell(cx, cy, board.GetLetter(x, y), kYellow, kDefault, kBackgroundRed);
             break;
         case kCellUnchosen:
             if (IsCellEmpty(board, x, y))
                 DrawEmptyCell(Cell(x, y));
             else 
-                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
+                DrawCell(cx, cy, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
             if (IsCellEmpty(board, x, y))
                 DrawEmptyCell(Cell(x, y), 0, kDefault, kBackgroundGreen, false);
             else if (!ListContains(board.chosen_cells, &cur, pred)) {
-                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundGreen);
+                DrawCell(cx, cy, board.GetLetter(x, y), 0, kDefault, kBackgroundGreen);
             }
             break;
         case kCellUnhovering:
             if (IsCellEmpty(board, x, y))
                 DrawEmptyCell(Cell(x, y));
             else if (!ListContains(board.chosen_cells, &cur, pred)) {
-                DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault);
+                DrawCell(cx, cy, board.GetLetter(x, y), 0, kDefault, kBackgroundDefault);
             }
 
             break;
         case kCellHint:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBold, kDefault, kBackgroundYellow);
+            DrawCell(cx, cy, board.GetLetter(x, y), kBold, kDefault, kBackgroundYellow);
             break;
         case kCellMatchIncorrect:
-            DrawCell(x * kCellHeight, y * kCellWidth, board.GetLetter(x, y), kBlinking, kDefault, kBackgroundDefault);
+            DrawCell(cx, cy, board.GetLetter(x, y), kBlinking, kDefault, kBackgroundDefault);
             break;
         default:
             break;
@@ -720,7 +740,7 @@ void NotifyCell(Board &board, int x, int y, int state) {
 }
 
 /* Ending Score */
-void DrawEndingScoreScreen() {
+void DrawEndingScoreScreen(Board &board) {
     // TODO Play audio
     // TODO Draw background
     int col = 30;
@@ -807,8 +827,9 @@ void DrawEndingScoreScreen() {
     std::cout << "Saved player " << player_name << "!\n";
     GoToCursorPos(33, col);
     std::cout << "Quitting...";
-    Sleep(800L);
+    std::this_thread::sleep_for(chrono::milliseconds(800));
+    cout << "\x1b[?25l";
     
-    EraseScreen();
-    currentScreen = MENU;
+    // Quit game
+    StopGame(board);
 }

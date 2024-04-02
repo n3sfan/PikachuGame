@@ -106,8 +106,7 @@ void DrawBackgroundCell(const string& filename, int x, int y) {
     for (size_t i = 0; i < lines.size(); ++i) {
         // In background tại vị trí x, y
         GoToCursorPos(y + i, x);
-        cout << lines[i] << endl;
-        
+        cout << lines[i] << endl; 
     }
     file.close();
 }

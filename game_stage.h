@@ -85,5 +85,5 @@ void NotifyCell(Board &board, int x, int y, int state);
 void CellToPos(const Cell &c, int &x, int &y);
 
 /* Ending Score */
-void DrawEndingScoreScreen();
+void DrawEndingScoreScreen(Board &board);
 #endif // GAME_GAME_STAGE_H 

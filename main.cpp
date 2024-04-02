@@ -604,7 +604,39 @@ void MenuLevel(){
 
 }
 
-void Menu(){
+// void DrawMenu() {
+//     GoToCursorPos(y - 12, x - 20);
+//     cout << SetColor(0, kGreen, 0);
+//     DrawBackgroundCell("background2.txt", x - 40, y + 5);
+//     cout << SetColor(0, kYellow, 0);
+//     DrawBackgroundCell("background6.txt", x + 20, y - 5);
+//     cout << SetColor(0, kRed, 0);
+//     DrawBackgroundCell("background7.txt", x - 20, y - 12);
+//     // setting
+//     int w = 20;
+//     int h = 2; 
+//     int t_color = kWhite;
+//     int b_color = kBackgroundBlack;
+//     int b_color_sang = kBackgroundRed;
+//     string nd = "Play Game";
+//     string nd2 = "Leaderboard";
+//     string nd3 = "Quit";
+//     int sl = 3;
+//     // Print menu 
+//     cout << SetColor(0, 0, kBackgroundWhite);
+//     Box( x, y, w, h, t_color, b_color, nd);
+//     Box( x, y + 2, w, h, t_color, b_color, nd2);
+//     GoToCursorPos(y + 2, x); cout << char(195);
+//     GoToCursorPos(y + 2, x + 20); cout << char(180);
+//     Box( x, y + 4, w, h, t_color, b_color, nd3);
+//     GoToCursorPos(y + 4, x); cout << char(195);
+//     GoToCursorPos(y + 4, x + 20); cout << char(180);
+    
+//     // Bright bar animation
+//     Brigth_Bar(x, y, w, h, b_color_sang, nd);
+// }
+
+void Menu() {
     GoToCursorPos(y - 12, x - 20);
     cout << SetColor(0, kGreen, 0);
     DrawBackgroundCell("background2.txt", x - 40, y + 5);
@@ -640,7 +672,7 @@ void Menu(){
     int index = 1; // Bright bar position 
     int indexcu = 1; // Previous bright bar position
 
-    while(true){
+    while(true) {
         // Print
         if( kt == true){
             // back space
@@ -675,7 +707,7 @@ void Menu(){
         // Control // movement
         if(_kbhit()){
             char c = _getch();
-            if(c == '\r'){
+            if(c == '\r') {
                 cout << SetColor(0, kDefault, kBackgroundDefault);
                 switch (index){
                     case 1:
@@ -697,7 +729,7 @@ void Menu(){
                         return;
                         break;
                 }
-            }else if(c == -32){
+            } else if(c == -32){
                 kt = true;
                 c = _getch();
                 if(c == kKeyUp){ // Press the up arrow key
@@ -803,7 +835,7 @@ int main() {
 )";
     // In ASCII art một cách từ từ với delay là 5 milliseconds
     PrintSlowly(asciiArt, 20);
-    Sleep(800);
+    this_thread::sleep_for(chrono::milliseconds(800));
 
     while(true) {
         if (currentScreen == GAME) {

@@ -67,7 +67,7 @@ Board& GenerateBoard(int m, int n, bool linked_list) {
     //     board->cells[i] = new char[n]{};
     // }    
 
-    // TODO Smart gen
+    // TODO Smart n
     char *chars = new char[(m - 2) * (n - 2)];
     for (int i = 0; i < (m - 2) * (n - 2); i += 2) {
         chars[i] = chars[i + 1] = 'A' + (char) NextInt(0, 25);
