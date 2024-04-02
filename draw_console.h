@@ -67,6 +67,7 @@ string SetColor(int text, int background);
 string SetColor(int text);
 
 void DrawBackgroundCell(const string& filename, int x, int y);
+void DrawBoardFrame(int x, int y, int h, int w);
 /* Draw */
 void EraseScreen();
 

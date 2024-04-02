@@ -1,4 +1,8 @@
 Nesfan - 8
+<<<<<<< HEAD
 Nesfan - 8
 Nesfan - 9
 Thinh - 11
+=======
+Thang  - 40
+>>>>>>> e4ee06d7d50c72efc1cc276ab12c12b677628339

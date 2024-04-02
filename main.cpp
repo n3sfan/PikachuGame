@@ -109,7 +109,6 @@ void MenuSizeStandard() {
     DrawBackgroundCell("background6.txt", x + 20, y - 5);
     cout << SetColor(0, kRed, 0);
     DrawBackgroundCell("background7.txt", x - 20, y - 12);
-    cout << "\x1b[?25l";// Xóa nháy chuột
     // setting
     int w = 20;
     int h = 2; 
@@ -770,10 +769,33 @@ void Menu() {
         }    
     }
 }
+void DrawTutorial(){
+    int a = 120;
+    int b = 20;
+    int w = 30;
+    int h = 8;
+    GoToCursorPos(b + 1, a + 10);
+    cout << "Help Menu";
+    GoToCursorPos(b + 3, a + 1);
+    cout << "H : Hint ";
+    GoToCursorPos(b + 4, a + 1);
+    cout << "Backspace : Shuffle ";
+    GoToCursorPos(b + 5, a + 1);
+    cout << "Enter : Choose cell ";
+    GoToCursorPos(b + 6, a + 1);
+    cout << "Esc : Exit ";
+    GoToCursorPos(b + 7, a + 1);
+    cout << "Up,Down,Left,Right : Moving ";
+    for(int ix = a + 1; ix < a + w ; ix++){
+        GoToCursorPos(b, ix); cout << "-";
+        GoToCursorPos(b + h, ix); cout << "-";
+    }
+    for(int iy = b + 1; iy < b + h ; iy++){
+        GoToCursorPos(iy, a); cout << "|";
+        GoToCursorPos(iy, a + w); cout << "|";
+    }
 
-
-
-
+}
 // void SwitchScreen(int screen_type) {
 
 // }
@@ -833,7 +855,7 @@ int main() {
                  /\____/
                  \_/__/
 )";
-    // In ASCII art một cách từ từ với delay là 5 milliseconds
+    // In ASCII art một cách từ từ với delay là 20 milliseconds
     PrintSlowly(asciiArt, 20);
     this_thread::sleep_for(chrono::milliseconds(800));
 
@@ -852,11 +874,9 @@ int main() {
             if(input == kKeyEsc){
                 if (currentScreen == LEADERBOARD){
                     EraseScreen();
-                    // menu();
                     currentScreen = MENU;
                 } else if(currentScreen == GAME){
                     EraseScreen();
-                    // menu();
                     currentScreen = MENU;
                 }
             }
