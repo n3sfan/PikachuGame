@@ -52,7 +52,7 @@ void GameSound()
 }
 
 namespace Game {
-    chrono::_V2::system_clock::time_point begin_time, begin_music_time;
+    chrono::_V2::system_clock::time_point begin_time, begin_music_time, update_time;
     int m, n;
     string background_image;
 }
@@ -80,6 +80,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     }
     DrawBoard(board);
     GameSound();
+
 
     MoveToCell(board, 1, 1);
 
@@ -271,7 +272,7 @@ void DrawMatching(const Cell *path, int n, bool clear) {
                 if (clear) {
                     std::cout << SetColor(0, kDefault, kBackgroundDefault) << " ";
                 } else {
-                    std::cout << SetColor(0, kGreen, kBackgroundDefault) << "#";
+                    std::cout << SetColor(0, kGreen, kBackgroundDefault) << "*";
                 }
             }
         }

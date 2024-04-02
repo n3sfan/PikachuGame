@@ -55,7 +55,7 @@ void Leaderboard(const vector<Player>& leaderboard) {
     GoToCursorPos(6, 35);
     cout << "\t---------------------------------\n";
     GoToCursorPos(7, 35);
-    cout << "\tName\t\t\t    Score\n";
+    cout << "\tName\t\t\t    Time\n";
     GoToCursorPos(8, 35);
     cout << "\t---------------------------------\n";
     for (size_t i = 0; i < leaderboard.size(); ++i) {
