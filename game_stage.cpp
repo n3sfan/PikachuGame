@@ -76,8 +76,9 @@ Board& StartGame(int m, int n, bool linked_list) {
     shuffle(bg_cells, bg_cells + 90*90, rng);
     for (int k = 0; k < 90*90; ++k) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
-        DrawBackgroundCell(Game::background_image, i, j, i, j, 1, 1);
+        DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
     }
+    DrawBoardFrame(8, 4, Game:: m * kCellHeight + 1, Game:: n * kCellWidth + 1);
     DrawBoard(board);
     GameSound();
 
@@ -107,6 +108,7 @@ Board& StartGame(int m, int n, bool linked_list) {
 
     return board;
 }
+
 
 void StopGame(Board &board) {
     DeleteBoard(board);
