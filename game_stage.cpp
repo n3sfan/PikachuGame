@@ -86,7 +86,7 @@ Board& StartGame(int m, int n, bool linked_list) {
         DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
         
     }
-    DrawBoardFrame(8, 4, Game:: m * kCellHeight + 1, Game:: n * kCellWidth + 1);
+    DrawBoardFrame(14, 5, Game:: m * kCellHeight - 1, Game:: n * kCellWidth + 1);
     DrawBoard(board);
     // GameSound();
 

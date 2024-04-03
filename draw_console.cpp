@@ -113,12 +113,12 @@ void DrawBackgroundCell(const string& filename, int x, int y) {
 void DrawBoardFrame(int x, int y, int h, int w){
     cout << SetColor(0, kGreen, 0);
     for(int ix = x + 1; ix < x + w; ix++){
-        GoToCursorPos(y, ix); cout << "-";
-        GoToCursorPos(y + h, ix); cout << "-";
+        GoToCursorPos(y, ix); cout << char(205);
+        GoToCursorPos(y + h, ix); cout << char(205);
     }
     for(int iy = y + 1; iy < y + h ; iy++){
-        GoToCursorPos(iy, x); cout << "|";
-        GoToCursorPos(iy, x + w); cout << "|";
+        GoToCursorPos(iy, x); cout << char(186);
+        GoToCursorPos(iy, x + w); cout << char(186);
     }
 }
 
