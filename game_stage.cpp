@@ -294,7 +294,6 @@ void DrawMatching(const Cell *path, int n, bool clear) {
             }
         }
     }
-
     GoToCursorPos(last_cursor_x, last_cursor_y);
 }
 
