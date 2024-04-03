@@ -43,9 +43,14 @@ void GameRemoveCell(Board &board, Cell cell);
  * 
  * c: Character which cell displays.
 */
-void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault);
+void DrawCell(int x, int y, char c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault, bool top = true, bool left = true, bool right = true, bool bottom = true);
 
-void DrawEmptyCell(Cell c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault, bool clear = true);
+void DrawCell(Board &board, Cell c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault);
+
+/**
+ * clear: cell already drawn empty.
+*/
+void DrawEmptyCell(Board &board, Cell c, int char_mode = 0, int char_color = kDefault, int background_color = kBackgroundDefault, bool clear = true);
 
 /**
  * Draw a cell from background text file.
@@ -70,7 +75,7 @@ void DrawBoard(Board &board, int x);
 
 void DrawBoard(Board &board);
 
-void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, int h, int w);
+void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, int h, int w, bool draw_empty = false);
 
 /*
 * Draw a row from cell (x, y) at row's cursor pos

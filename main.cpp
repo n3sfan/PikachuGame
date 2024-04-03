@@ -856,8 +856,8 @@ int main() {
                  \_/__/
 )";
     // In ASCII art một cách từ từ với delay là 20 milliseconds
-    PrintSlowly(asciiArt, 20);
-    this_thread::sleep_for(chrono::milliseconds(800));
+    // PrintSlowly(asciiArt, 20);
+    // this_thread::sleep_for(chrono::milliseconds(800));
 
     while(true) {
         if (currentScreen == GAME) {
