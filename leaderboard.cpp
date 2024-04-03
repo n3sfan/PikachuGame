@@ -9,18 +9,19 @@
 #include <iomanip>
 using namespace std;
 
-// So sánh điểm số giữa các người chơi
+
+// Compare scores between players
 bool comparePlayers(const Player& a, const Player& b) {
     return a.score > b.score;
 }
 
-// Thêm thông tin người chơi
+// Add player information
 void addPlayer(vector<Player> &leaderboard, const string &name, int score) {
     leaderboard.push_back({name, score});
     sort(leaderboard.begin(), leaderboard.end(), comparePlayers);
 }
 
-// Lưu bảng xếp hạng vào file
+// Save Leaderboard to file
 void saveLeaderboard(const vector<Player> &leaderboard, string stage_filename) {
     ofstream file(stage_filename.c_str());
     for (const auto& player : leaderboard) {
@@ -35,12 +36,12 @@ vector<Player> readLeaderboard(const string& filename) {
     if (file.good()) {
         string line;
         while (getline(file, line)) {
-            string::size_type pos = line.find('-'); // Tìm vị trí của dấu '-'
-            if (pos != string::npos) { // Nếu tìm thấy dấu '-'
-                string name = line.substr(0, pos); // Lấy phần tên từ đầu đến trước dấu '-'
-                string scoreString = line.substr(pos + 1); // Lấy phần điểm từ sau dấu '-'
-                int score = stoi(scoreString); // Chuyển đổi phần điểm thành số nguyên
-                leaderboard.push_back({name, score}); // Thêm vào leaderboard
+            string::size_type pos = line.find('-'); // Find the position of the '-' character in the line
+            if (pos != string::npos) { // If '-' character is found
+                string name = line.substr(0, pos); // Extract player name from the beginning of the line up to before the '-'
+                string scoreString = line.substr(pos + 1); // Extract score from after the '-' character
+                int score = stoi(scoreString); // Convert the score string to an integer
+                leaderboard.push_back({name, score}); // Add to leaderboard 
             }
         }
         file.close();
@@ -49,7 +50,7 @@ vector<Player> readLeaderboard(const string& filename) {
 }
 
 void Leaderboard(const vector<Player>& leaderboard) {
-    // In ra Leaderboard
+    // Print to Leaderboard
     GoToCursorPos(5, 35);
     cout << "\t\t   Leaderboard\n";
     GoToCursorPos(6, 35);
@@ -69,7 +70,7 @@ void Leaderboard(const vector<Player>& leaderboard) {
     GoToCursorPos(31, 35);
     cout << "\tPress Esc to return to main menu...\n";
 }
-// Vẽ leaderboard
+// Draw Leaderboard
 void DrawStageLeaderboard(string filename) {
     vector<Player> leaderboard = readLeaderboard(filename);
     Leaderboard(leaderboard);
