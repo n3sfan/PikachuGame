@@ -80,6 +80,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     for (int k = 0; k < 90*90; ++k) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
         DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
+        
     }
     DrawBoardFrame(8, 4, Game:: m * kCellHeight + 1, Game:: n * kCellWidth + 1);
     DrawBoard(board);
