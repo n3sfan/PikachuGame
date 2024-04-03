@@ -110,16 +110,22 @@ void DrawBackgroundCell(const string& filename, int x, int y) {
     }
     file.close();
 }
-void DrawBoardFrame(int x, int y, int h, int w){
-    cout << SetColor(0, kGreen, 0);
+
+void DrawBoardFrame(int x, int y, int h, int w) {
+    cout << SetColor(kBold, kMagenta, 0);
+    GoToCursorPos(y, x); cout << (char)201;
     for(int ix = x + 1; ix < x + w; ix++){
-        GoToCursorPos(y, ix); cout << "-";
-        GoToCursorPos(y + h, ix); cout << "-";
+        GoToCursorPos(y, ix); cout << (char)205;
+        GoToCursorPos(y + h, ix); cout << (char)205;
     }
+    GoToCursorPos(y, x + w); cout << (char)187;
+    GoToCursorPos(y + h, x); cout << (char)200;
     for(int iy = y + 1; iy < y + h ; iy++){
-        GoToCursorPos(iy, x); cout << "|";
-        GoToCursorPos(iy, x + w); cout << "|";
+        GoToCursorPos(iy, x); cout << (char)186;
+        GoToCursorPos(iy, x + w); cout << (char)186;
     }
+    GoToCursorPos(y + h, x + w); cout << (char)188;
+    cout << SetColor(0, kDefault, kBackgroundDefault);
 }
 
 void SetBackgroundColor(int color) {         

@@ -33,28 +33,27 @@ const int kPadY = kCellWidth;
 const int kMaxTop = 10;
 
 
-void WinSound()
-{
+void WinSound() {
     PlaySound(TEXT("assets/Winning.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
-void CorrectSound()
-{
+
+void CorrectSound() {
     PlaySound(TEXT("assets/Correct.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
-void ErrorSound()
-{
+
+void ErrorSound() {
     PlaySound(TEXT("assets/Error.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
-void MovingSound()
-{
+
+void MovingSound() {
     PlaySound(TEXT("assets/Moving.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
-void MenuSound()
-{
+
+void MenuSound() {
     PlaySound(TEXT("assets/Menu.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
-void GameSound()
-{
+
+void GameSound() {
     PlaySound(TEXT("assets/Game.wav"), NULL, SND_FILENAME | SND_ASYNC);
 }
 
@@ -62,6 +61,33 @@ namespace Game {
     chrono::_V2::system_clock::time_point begin_time, begin_music_time, update_time;
     int m, n;
     string background_image;
+}
+
+void DrawTutorial() {
+    int a = 120;
+    int b = 20;
+    int w = 30;
+    int h = 8;
+    GoToCursorPos(b + 1, a + 10);
+    cout << "Help Menu";
+    GoToCursorPos(b + 3, a + 1);
+    cout << "H: Hint ";
+    GoToCursorPos(b + 4, a + 1);
+    cout << "Backspace: Shuffle ";
+    GoToCursorPos(b + 5, a + 1);
+    cout << "Enter: Choose cell ";
+    GoToCursorPos(b + 6, a + 1);
+    cout << "Esc: Exit ";
+    GoToCursorPos(b + 7, a + 1);
+    cout << "Arow keys: Move";
+    for(int ix = a + 1; ix < a + w ; ix++){
+        GoToCursorPos(b, ix); cout << "-";
+        GoToCursorPos(b + h, ix); cout << "-";
+    }
+    for(int iy = b + 1; iy < b + h ; iy++){
+        GoToCursorPos(iy, a); cout << "|";
+        GoToCursorPos(iy, a + w); cout << "|";
+    }
 }
 
 Board& StartGame(int m, int n, bool linked_list) {
@@ -85,10 +111,10 @@ Board& StartGame(int m, int n, bool linked_list) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
         DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
     }
-    DrawBoardFrame(8, 4, Game:: m * kCellHeight + 1, Game:: n * kCellWidth + 1);
+    DrawBoardFrame(kPadY, kPadX, (Game::m + 2) * (kCellHeight - 1), (Game::n + 2) * (kCellWidth - 1));
     DrawBoard(board);
+    DrawTutorial();
     // GameSound();
-
 
     MoveToCell(board, 1, 1);
 
