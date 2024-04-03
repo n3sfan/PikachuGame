@@ -110,6 +110,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     for (int k = 0; k < 90*90; ++k) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
         DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
+        
     }
     DrawBoardFrame(kPadY, kPadX, (Game::m + 2) * (kCellHeight - 1), (Game::n + 2) * (kCellWidth - 1));
     DrawBoard(board);
@@ -377,7 +378,6 @@ void DrawMatching(const Cell *path, int n, bool clear) {
             }
         }
     }
-
     GoToCursorPos(last_cursor_x, last_cursor_y);
 }
 
