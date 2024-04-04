@@ -61,7 +61,7 @@ void DrawEmptyCell(Board &board, Cell c, int char_mode = 0, int char_color = kDe
 /**
  * path: Path from 1st matched cell to 2nd one.
 */
-void DrawMatching(const Cell *path, int n, bool clear);
+void DrawMatching(Board &board, const Cell *path, int n, bool clear);
 
 /**
  * Outer border surrounding (actual) board.

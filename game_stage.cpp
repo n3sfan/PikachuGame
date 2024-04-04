@@ -77,7 +77,7 @@ void DrawTutorial() {
     GoToCursorPos(b + 5, a + 1);
     cout << "Enter: Choose cell ";
     GoToCursorPos(b + 6, a + 1);
-    cout << "Esc: Exit ";
+    cout << "Esc: Main Menu ";
     GoToCursorPos(b + 7, a + 1);
     cout << "Arow keys: Move";
     for(int ix = a + 1; ix < a + w ; ix++){
@@ -95,9 +95,10 @@ Board& StartGame(int m, int n, bool linked_list) {
     Game::begin_time = Game::begin_music_time = chrono::system_clock::now();
     Game::m = m;
     Game::n = n;
-    Game::background_image = string("background") + to_string(1 + rng()%3) + ".txt";
+    // Game::background_image = string("background") + to_string(1 + rng()%3) + ".txt";
+    Game::background_image = string("background1") + ".txt";
 
-    Board &board = GenerateBoard(m, n, linked_list); 
+    Board &board = GenerateBoard(m, n, linked_list);
 
     // draw background: diffusion effect
     Cell *bg_cells = new Cell[90*90];
@@ -109,8 +110,7 @@ Board& StartGame(int m, int n, bool linked_list) {
     shuffle(bg_cells, bg_cells + 90*90, rng);
     for (int k = 0; k < 90*90; ++k) {
         int i = bg_cells[k].x, j = bg_cells[k].y;
-        DrawBackgroundCell(Game::background_image, i, j, i + 2, j + 2, 1, 1);
-        
+        DrawBackgroundCell(Game::background_image, i, j, i + kPadX - 1, j + kPadY, 1, 1);   
     }
     DrawBoardFrame(kPadY, kPadX, (Game::m + 2) * (kCellHeight - 1), (Game::n + 2) * (kCellWidth - 1));
     DrawBoard(board);
@@ -228,16 +228,14 @@ void DrawEmptyCell(Board &board, Cell c, int char_mode, int char_color, int back
     int x, y;
     CellToPos(c, x, y);
     std::cout << SetColor(char_mode, char_color, background_color);
-
-    // bool top = IsInside(board, c.x - 1, c.y) && IsCellEmpty(board, c.x - 1, c.y);
-    // bool left = IsInside(board, c.x, c.y - 1) && IsCellEmpty(board, c.x, c.y - 1);
-    // bool right = IsInside(board, c.x + 1, c.y) && IsCellEmpty(board, c.x + 1, c.y);
-    // bool bottom = IsInside(board, c.x, c.y + 1) && IsCellEmpty(board, c.x, c.y + 1); 
+    
+    // If true, we can draw background at top/left/bottom/right cell border.
     bool top = !IsInside(board, c.x - 1, c.y) || IsCellEmpty(board, c.x - 1, c.y);
     bool left = !IsInside(board, c.x, c.y - 1) || IsCellEmpty(board, c.x, c.y - 1);
     bool bottom = !IsInside(board, c.x + 1, c.y) || IsCellEmpty(board, c.x + 1, c.y);
     bool right = !IsInside(board, c.x, c.y + 1) || IsCellEmpty(board, c.x, c.y + 1); 
-    
+
+    // Cell is not yet empty on console. 
     if (clear) {
         if (top) { 
             GoToCursorPos(x, y);
@@ -273,11 +271,17 @@ void DrawEmptyCell(Board &board, Cell c, int char_mode, int char_color, int back
             std::cout << " ";
         }
     }
-    
-    if (c.x >= 1 && c.y >= 1)  {       
-        // DrawBackgroundCell(Game::background_image, x - kPadX, y - kPadY, x + (!clear), y + (!clear || !left), kCellHeight - 2 * (!clear || !bottom), kCellWidth - 2 * (!clear || !right), true);
-        DrawBackgroundCell(Game::background_image, x - kPadX, y - kPadY, x + (!clear || !top), y + (!clear || !left), kCellHeight - (!clear || !bottom) - (!clear || !top), kCellWidth - (!clear || !right) - (!clear || !left), true);
+
+    clear = true;// empty or not 
+    int x1 = x + (!clear || !top), y1 = y + (!clear || !left);  
+    int h = kCellHeight - (!clear || !bottom) - (!clear || !top), w = kCellWidth - (!clear || !right) - (!clear || !left);
+    if (!IsInside(board, c.x, c.y)) {
+        x1 = x +   (c.x == 0 || c.x == board.m - 1); 
+        y1 = y +  (c.y == 0 || c.y == board.m - 1);
+        h = kCellHeight - 2 * (c.x == 0 || c.x == board.m - 1);
+        w = kCellWidth - 2 *(c.y == 0 || c.y == board.m - 1);
     }
+    DrawBackgroundCell(Game::background_image,  x1 - kPadX + 1, y1 - kPadY, x1, y1, h, w, true);
     // Reset to original pos
     GoToCursorPos(last_x, last_y);
     std::cout << SetColor(0, kDefault, kBackgroundDefault);
@@ -323,7 +327,7 @@ void DrawBackgroundCell(string filename, int file_x, int file_y, int x, int y, i
     GoToCursorPos(last_x, last_y);
 }
 
-void DrawMatching(const Cell *path, int n, bool clear) {
+void DrawMatching(Board &board, const Cell *path, int n, bool clear) {
     int last_cursor_x, last_cursor_y;
     ReturnCursorPos(last_cursor_x, last_cursor_y);
     if (clear) {
@@ -377,6 +381,10 @@ void DrawMatching(const Cell *path, int n, bool clear) {
                 }
             }
         }
+
+        if (clear && !IsInside(board, path[i].x, path[i].y)) {
+            DrawEmptyCell(board, path[i], 0, kDefault, kBackgroundDefault, false);
+        } 
     }
     GoToCursorPos(last_cursor_x, last_cursor_y);
 }
@@ -603,9 +611,9 @@ void ChooseCell(Board &board, int x, int y) {
             // Sound
             CorrectSound();
             // Draw
-            DrawMatching(path, n, false);
+            DrawMatching(board, path, n, false);
             std::this_thread::sleep_for(std::chrono::milliseconds(700));
-            DrawMatching(path, n, true);
+            DrawMatching(board, path, n, true);
 
             if (!Game::version_linked_list) {
                 GameRemoveCell(board, c1);
@@ -630,6 +638,8 @@ void ChooseCell(Board &board, int x, int y) {
                     if (found)
                         break;
                 }
+            } else {
+                NotifyCell(board, board.cur_x, board.cur_y, kCellHovering);
             }
         } else {
             // Sound
@@ -740,9 +750,14 @@ void NotifyCell(Board &board, int x, int y, int state) {
                 DrawCell(board, cur, 0, kDefault, kBackgroundDefault); 
             break;
         case kCellHovering:
-            if (IsCellEmpty(board, x, y))
-                DrawEmptyCell(board, Cell(x, y), 0, kDefault, kBackgroundGreen, false);
-            else if (!ListContains(board.chosen_cells, &cur, pred)) {
+            if (IsCellEmpty(board, x, y)) {
+                int x1 = cx + 1, y1 = cy + 1;
+                int h = kCellHeight - 2, w = kCellWidth - 2;   
+                cout << SetColor(0, kDefault, kBackgroundGreen);
+                DrawBackgroundCell(Game::background_image, x1 - kPadX + 1, y1 - kPadY, x1, y1, h, w, true);
+                cout << SetColor(0, kDefault, kBackgroundDefault);
+                // DrawEmptyCell(board, Cell(x, y), 0, kDefault, kBackgroundGreen, false);
+            } else if (!ListContains(board.chosen_cells, &cur, pred)) {
                 DrawCell(board, cur, 0, kDefault, kBackgroundGreen);
             }
             break;
@@ -852,7 +867,7 @@ void DrawEndingScoreScreen(Board &board) {
     std::cout << "\x1b[2k";
     std::cout << "Saved player " << player_name << "!\n";
     GoToCursorPos(33, col);
-    std::cout << "Quitting...";
+    std::cout << "Quitting to Main Menu...";
     std::this_thread::sleep_for(chrono::milliseconds(800));
     cout << "\x1b[?25l";
     
