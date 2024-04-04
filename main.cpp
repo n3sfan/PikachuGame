@@ -829,7 +829,7 @@ int main() {
                  /\____/
                  \_/__/
 )";
-    // In ASCII art một cách từ từ với delay là 20 milliseconds
+    // Print ASCII art slowly with a delay of 20 milliseconds
     // PrintSlowly(asciiArt, 20);
     // this_thread::sleep_for(chrono::milliseconds(800));
 
